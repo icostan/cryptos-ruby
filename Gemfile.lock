@@ -7,7 +7,8 @@ GEM
   remote: https://rubygems.org/
   specs:
     diff-lcs (1.3)
-    rake (10.5.0)
+    ecdsa (1.2.0)
+    rake (12.3.1)
     rspec (3.8.0)
       rspec-core (~> 3.8.0)
       rspec-expectations (~> 3.8.0)
@@ -26,10 +27,11 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  bundler (~> 1.16)
+  bundler
   crypto_crafts!
-  rake (~> 10.0)
-  rspec (~> 3.0)
+  ecdsa
+  rake
+  rspec
 
 BUNDLED WITH
    1.16.6
