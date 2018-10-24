@@ -4,4 +4,16 @@ language: ruby
 cache: bundler
 rvm:
   - 2.5.1
-before_install: gem install bundler -v 1.16.6
+
+before_install:
+  - gem install bundler -v 1.16.6
+  - sudo apt-add-repository ppa:bitcoin/bitcoin -y
+  - sudo apt-get update -qqmoving
+  - sudo apt-get install bitcoind -y
+
+apt_packages:
+  - bitcoind
+
+before_script:
+  # - mkdir -p /home/travis/.bitcoin && cp bitcoin.conf /home/travis/.bitcoin/bitcoin.conf
+  - bitcoind -regtest -daemon

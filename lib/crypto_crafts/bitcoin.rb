@@ -1,6 +1,24 @@
 require 'digest'
 require 'securerandom'
 
+def bitcoin_new_private_key
+  1 + SecureRandom.random_number(EC_n - 1)
+end
+def bitcoin_new_public_key(private_key)
+  px, py = ec_multiply(private_key, EC_Gx, EC_Gy, EC_p)
+  ((px**3 + 7 - py**2) % EC_p == 0) || raise('public key point is not on the curve')
+  "#{py > 0 ? '02' : '03'}#{px.to_s(16)}"
+end
+# TODO: accept network bytes insted of string
+def bitcoin_new_address(public_key, prefix = '6f')
+  sha256 = Digest::SHA256.hexdigest([public_key].pack('H*'))
+  ripemd160 = Digest::RMD160.hexdigest([sha256].pack('H*'))
+  with_version = "#{prefix}#{ripemd160}"
+  checksum = Digest::SHA256.hexdigest(Digest::SHA256.digest([with_version].pack('H*')))[0, 8]
+  wrap_encode = "#{with_version}#{checksum}"
+  bitcoin_base58_encode(wrap_encode)
+end
+
 #
 # Bitcoin
 #

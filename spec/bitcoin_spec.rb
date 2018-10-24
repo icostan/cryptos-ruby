@@ -1,4 +1,73 @@
+require 'json'
+require 'tmpdir'
+
 RSpec.describe 'Bitcoin' do
+  def run_command(cmd, v: false, run_mode: :inline)
+    puts "==> #{cmd}"
+    case run_mode
+    when :inline
+      output = `#{cmd}`
+      puts output if v
+      output
+    when :system
+      success = system cmd
+      expect(success).to be_truthy
+      success
+    when :daemon
+      pid = spawn cmd
+      sleep 10
+      pid
+    else
+      raise "dont know how to run #{run_mode}"
+    end
+  end
+
+  describe 'spend' do
+    let(:destination_address) { 'n1C8nsmi4sc4hMBGgVZrnhxeFtk1sTbMZ4' }
+
+    it 'spend address' do
+      private_key = 0x18e14a7b6a307f426a94f8114701e7c8e774e7f9a47e2c2035db29a206321725
+      public_key = bitcoin_new_public_key private_key
+      address = bitcoin_new_address public_key
+
+      run_command "bitcoin-cli -regtest importaddress #{address} src"
+      run_command "bitcoin-cli -regtest importaddress #{destination_address} dst"
+      run_command "bitcoin-cli -regtest generatetoaddress 101 #{address}"
+
+      output = run_command 'bitcoin-cli -regtest listunspent', v: false
+      utxo = JSON.parse(output).first
+      txid = utxo['txid']
+      vout = utxo['vout']
+      amount = utxo['amount']
+
+      input = Input.new amount * 10**8, txid, vout
+      output_script = bitcoin_script destination_address
+      output = Output.new 100_000_000, output_script
+      change_value = input.value - output.value - 10_000
+      change_script = bitcoin_script address
+      change = Output.new change_value, change_script
+      lock_script = bitcoin_script address
+      t = Transaction.new 1, [input], [output, change], 0
+      rawtx = t.sign private_key, public_key, lock_script
+      run_command "bitcoin-cli -regtest sendrawtransaction #{rawtx}", run_mode: :system
+
+      run_command 'bitcoin-cli -regtest generate 1'
+
+      output = run_command "bitcoin-cli -regtest getreceivedbyaddress #{destination_address}"
+      expect(output).to include '1.00000000'
+    end
+  end
+
+  it 'generate address' do
+    k = 0x18e14a7b6a307f426a94f8114701e7c8e774e7f9a47e2c2035db29a206321725
+    public_key = bitcoin_new_public_key k
+    expect(public_key).to eq '0250863ad64a87ae8a2fe83c1af1a8403cb53f53e486d8511dad8a04887e5b2352'
+    address = bitcoin_new_address public_key, '00'
+    expect(address).to eq '1PMycacnJaSqwwJqjawXBErnLsZ7RkXUAs'
+    address = bitcoin_new_address public_key, '6f'
+    expect(address).to eq 'n3svudhm7bt6j3nTT9uu1A57Cs9pKK3iXW'
+  end
+
   describe Der do
     it '#initialize' do
       der = Der.new r: 'r'

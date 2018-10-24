@@ -1,0 +1,4 @@
+* TODOs
+  * Integration tests with -regtest mode
+  * Support for LTC
+  * Atomic swap BTCLTC
