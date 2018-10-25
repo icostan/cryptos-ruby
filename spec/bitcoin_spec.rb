@@ -29,7 +29,10 @@ RSpec.describe 'Bitcoin' do
     }
     let(:public_key) { bitcoin_new_public_key private_key }
     let(:address) { bitcoin_new_address public_key }
-    let(:destination_address) { 'n1C8nsmi4sc4hMBGgVZrnhxeFtk1sTbMZ4' }
+    let(:destination_address) {
+      # 'n1C8nsmi4sc4hMBGgVZrnhxeFtk1sTbMZ4'
+      bitcoin_new_address bitcoin_new_public_key bitcoin_new_private_key
+    }
 
     before do
       run_command "bitcoin-cli -regtest importaddress #{destination_address} dst", run_mode: :system

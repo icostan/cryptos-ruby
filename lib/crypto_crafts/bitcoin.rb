@@ -107,6 +107,8 @@ Transaction = Struct.new :version, :inputs, :outputs, :locktime do
   def sign(private_key, public_key, lock_script, sighash_type = 0x01)
     bytes_string = signature_hash lock_script, sighash_type
     r, s = ecdsa_sign private_key, bytes_string
+    puts "r: #{r}"
+    puts "s: #{s}"
     der = Der.new r: r, s: s
     inputs.first.unlock_script = "#{der.serialize} #{public_key}"
     serialize

@@ -2,7 +2,7 @@ EC_Gx = 0x79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798
 EC_Gy = 0x483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8
 EC_p = 2**256 - 2**32 - 2**9 - 2**8 - 2**7 - 2**6 - 2**4 - 1
 EC_n = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141
-
+LOW_S = 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0
 #
 # Elliptic Curve
 #
@@ -65,6 +65,11 @@ def ecdsa_sign(private_key, digest, temp_key = nil)
   m = bytes_to_bignum digest
   s = (i_tk * (m + r * private_key)) % EC_n
   s > 0 || raise('s is zero, try again new temp key')
+  if s > LOW_S
+    # https://github.com/bitcoin/bips/blob/master/bip-0062.mediawiki#low-s-values-in-signatures
+    puts 'WARN: s is too big, use low s values'
+    s = (EC_n - s) % EC_n
+  end
   [r, s]
 end
 
