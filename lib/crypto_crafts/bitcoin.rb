@@ -1,6 +1,17 @@
 require 'digest'
 require 'securerandom'
 
+module Bitcoin
+  def self.input_from_utxo(data, options = {debug: false})
+    utxo = JSON.parse(data).first
+    puts utxo if options[:debug]
+    txid = utxo['txid']
+    vout = utxo['vout']
+    amount = utxo['amount']
+    Input.new amount * 10**8, txid, vout
+  end
+end
+
 def bitcoin_new_private_key
   1 + SecureRandom.random_number(EC_n - 1)
 end

@@ -23,29 +23,31 @@ RSpec.describe 'Bitcoin' do
   end
 
   describe 'spend' do
+    let(:private_key) {
+      # 0x18e14a7b6a307f426a94f8114701e7c8e774e7f9a47e2c2035db29a206321725
+      bitcoin_new_private_key
+    }
+    let(:public_key) { bitcoin_new_public_key private_key }
+    let(:address) { bitcoin_new_address public_key }
     let(:destination_address) { 'n1C8nsmi4sc4hMBGgVZrnhxeFtk1sTbMZ4' }
 
+    before do
+      run_command "bitcoin-cli -regtest importaddress #{destination_address} dst", run_mode: :system
+      run_command "bitcoin-cli -regtest importaddress #{address} src", run_mode: :system
+      run_command "bitcoin-cli -regtest generatetoaddress 101 #{address}", run_mode: :inline
+    end
+
     it 'spend address' do
-      private_key = 0x18e14a7b6a307f426a94f8114701e7c8e774e7f9a47e2c2035db29a206321725
-      public_key = bitcoin_new_public_key private_key
-      address = bitcoin_new_address public_key
+      output = run_command "bitcoin-cli -regtest listunspent 1 9999 \"[\\\"#{address}\\\"]\"", v: false
+      input = Bitcoin.input_from_utxo output
 
-      run_command "bitcoin-cli -regtest importaddress #{address} src"
-      run_command "bitcoin-cli -regtest importaddress #{destination_address} dst"
-      run_command "bitcoin-cli -regtest generatetoaddress 101 #{address}"
-
-      output = run_command 'bitcoin-cli -regtest listunspent', v: false
-      utxo = JSON.parse(output).first
-      txid = utxo['txid']
-      vout = utxo['vout']
-      amount = utxo['amount']
-
-      input = Input.new amount * 10**8, txid, vout
       output_script = bitcoin_script destination_address
       output = Output.new 100_000_000, output_script
+
       change_value = input.value - output.value - 10_000
       change_script = bitcoin_script address
       change = Output.new change_value, change_script
+
       lock_script = bitcoin_script address
       t = Transaction.new 1, [input], [output, change], 0
       rawtx = t.sign private_key, public_key, lock_script
