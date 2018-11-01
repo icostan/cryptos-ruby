@@ -38,6 +38,10 @@ class Struct
     to_hex [value].pack('C')
   end
 
+  def bytes_to_hex(bytes)
+    to_hex bytes.pack('C*')
+  end
+
   def long_to_hex(value)
     to_hex [value].pack('Q<')
   end
@@ -55,12 +59,37 @@ def bytes_to_bignum(bytes_string)
   bytes_string.bytes.reduce { |n, b| (n << 8) + b }
 end
 
-def bignum_to_bytes(n, length=nil)
+def bignum_to_bytes(n, length=nil, stringify=true)
   a = []
   while n > 0
     a << (n & 0xFF)
     n >>= 8
   end
   a.fill 0x00, a.length, length - a.length if length
-  a.reverse.pack('C*')
+  bytes = a.reverse
+  stringify ? bytes.pack('C*') : bytes
+end
+
+Der = Struct.new :der, :length, :ri, :rl, :r, :si, :sl, :s, :sighash_type do
+  def initialize(der: 0x30, length: 0x44, ri: 0x02, rl: 0x20, r: nil, si: 0x02, sl: 0x20, s: nil, sighash_type: 0x01)
+    super der, length, ri, rl, r, si, sl, s, sighash_type
+  end
+
+  def serialize
+    r_bytes = bignum_to_bytes(r, 32, false)
+    if r_bytes.first & 0x80 == 128
+      r_bytes = [0x00] + r_bytes
+      self.length += 1
+      self.rl += 1
+    end
+    byte_to_hex(der) + byte_to_hex(length) +
+      byte_to_hex(ri) + byte_to_hex(rl) + bytes_to_hex(r_bytes) +
+      byte_to_hex(si) + byte_to_hex(sl) + to_hex(bignum_to_bytes(s, 32)) +
+      byte_to_hex(sighash_type)
+  end
+
+  def self.parse(signature)
+    fields = *[signature].pack('H*').unpack('CCCCH66CCH64C')
+    Der.new r: fields[4], s: fields[7], sighash_type: fields[8]
+  end
 end

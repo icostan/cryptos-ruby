@@ -114,21 +114,3 @@ Transaction = Struct.new :version, :inputs, :outputs, :locktime do
     serialize
   end
 end
-
-Der = Struct.new :der, :length, :ri, :rl, :r, :si, :sl, :s, :sighash_type do
-  def initialize(der: 0x30, length: 0x45, ri: 0x02, rl: 0x21, r: nil, si: 0x02, sl: 0x20, s: nil, sighash_type: 0x01)
-    super der, length, ri, rl, r, si, sl, s, sighash_type
-  end
-
-  def serialize
-    byte_to_hex(der) + byte_to_hex(length) +
-      byte_to_hex(ri) + byte_to_hex(rl) + to_hex(bignum_to_bytes(r, 33)) +
-      byte_to_hex(si) + byte_to_hex(sl) + to_hex(bignum_to_bytes(s, 32)) +
-      byte_to_hex(sighash_type)
-  end
-
-  def self.parse(signature)
-    fields = *[signature].pack('H*').unpack('CCCCH66CCH64C')
-    Der.new r: fields[4], s: fields[7], sighash_type: fields[8]
-  end
-end
