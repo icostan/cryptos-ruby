@@ -17,3 +17,4 @@ apt_packages:
 before_script:
   # - mkdir -p /home/travis/.bitcoin && cp bitcoin.conf /home/travis/.bitcoin/bitcoin.conf
   - bitcoind -regtest -daemon
+  - sleep 15
