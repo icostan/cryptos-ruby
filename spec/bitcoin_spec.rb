@@ -15,7 +15,7 @@ RSpec.describe 'Bitcoin' do
       success
     when :daemon
       pid = spawn cmd
-      sleep 10
+      sleep (ENV['BOOTSTRAP'] || 10).to_i
       pid
     else
       raise "dont know how to run #{run_mode}"
