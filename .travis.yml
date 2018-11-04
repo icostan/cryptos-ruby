@@ -12,7 +12,8 @@ before_install:
   - sudo apt-get install bitcoind -y
   - wget https://download.litecoin.org/litecoin-0.16.3/linux/litecoin-0.16.3-x86_64-linux-gnu.tar.gz
   - tar -xvf litecoin-0.16.3-x86_64-linux-gnu.tar.gz
-  - export PATH=~/litecoin-0.16.3/bin:$PATH
+  - export PATH=./litecoin-0.16.3/bin:$PATH
+  - echo $PATH
 
 apt_packages:
   - bitcoind
