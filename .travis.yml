@@ -3,7 +3,7 @@ sudo: false
 language: ruby
 cache: bundler
 rvm:
-  - 2.4.1
+  - 2.5.3
 
 before_install:
   - gem install bundler -v 1.16.6
@@ -11,7 +11,7 @@ before_install:
   - sudo apt-get update -qq
   - sudo apt-get install bitcoind -y
   - wget https://download.litecoin.org/litecoin-0.16.3/linux/litecoin-0.16.3-x86_64-linux-gnu.tar.gz
-  - tar -xvfz litecoin-0.16.3-x86_64-linux-gnu.tar.gz
+  - tar -xvf litecoin-0.16.3-x86_64-linux-gnu.tar.gz
   - export PATH=~/litecoin-0.16.3/bin:$PATH
 
 apt_packages:
