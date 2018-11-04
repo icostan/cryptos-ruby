@@ -2,3 +2,6 @@
   * Integration tests with -regtest mode
   * Support for LTC
   * Atomic swap BTCLTC
+  * brew decred
+  * brew litecoin, move cask
+  * autoload modules
