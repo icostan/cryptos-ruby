@@ -1,9 +1,14 @@
+require 'json'
 require 'digest'
 require 'securerandom'
 
 module Bitcoin
   class Address
+    include Base58
+    extend Base58
+
     attr_reader :value, :public_key
+
     #
     # https://en.bitcoin.it/wiki/Technical_background_of_version_1_Bitcoin_addresses
     #
@@ -13,7 +18,7 @@ module Bitcoin
       with_version = "#{prefix}#{ripemd160}"
       checksum = hash256(with_version)[0, 8]
       wrap_encode = "#{with_version}#{checksum}"
-      value = bitcoin_base58_encode(wrap_encode)
+      value = base58_encode(wrap_encode)
       new value, public_key
     end
     def initialize(value, public_key = nil)
@@ -21,20 +26,11 @@ module Bitcoin
       @public_key = public_key
     end
     def to_hash160
-      public_key ? hash160(public_key) : bitcoin_base58_decode(value)[2, 40]
+      public_key ? hash160(public_key) : base58_decode(value)[2, 40]
     end
     def to_s
       value
     end
-  end
-
-  def self.input_from_utxo(data, options = {debug: false})
-    utxo = JSON.parse(data).first
-    puts utxo if options[:debug]
-    txid = utxo['txid']
-    vout = utxo['vout']
-    amount = utxo['amount']
-    Input.new amount * 10**8, txid, vout
   end
 end
 
@@ -60,28 +56,6 @@ end
 #
 # Bitcoin
 #
-def bitcoin_base58_encode(ripe160_hash)
-  alphabet = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
-  value = ripe160_hash.to_i 16
-  output = ''
-  while value > 0
-    remainder = value % 58
-    value /= 58
-    output += alphabet[remainder]
-  end
-  output += alphabet[0] * [ripe160_hash].pack('H*').bytes.find_index{|b| b != 0}
-  output.reverse
-end
-def bitcoin_base58_decode(address)
-  alphabet = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
-  int_val = 0
-  address.reverse.chars.each_with_index do |char, index|
-    char_index = alphabet.index(char)
-    int_val += char_index * 58**index
-  end
-  # TODO: hard coded 50?
-  bignum_to_bytes(int_val, 25).unpack('H*').first
-end
 def bitcoin_script(address)
   hash160 = address.to_hash160
   if address.to_s.start_with? '2'
@@ -92,6 +66,14 @@ def bitcoin_script(address)
 end
 
 Input = Struct.new :value, :tx_hash, :index, :unlock_script, :sequence do
+  def self.from_utxo(data, options = {debug: false})
+    utxo = JSON.parse(data).first
+    puts utxo if options[:debug]
+    txid = utxo['txid']
+    vout = utxo['vout']
+    amount = utxo['amount']
+    Input.new amount * 10**8, txid, vout
+  end
   def initialize(value, tx_hash, index, unlock_script: '', sequence: 0xfffffffff)
     super value, tx_hash, index, unlock_script, sequence
   end

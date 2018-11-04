@@ -10,6 +10,9 @@ before_install:
   - sudo apt-add-repository ppa:bitcoin/bitcoin -y
   - sudo apt-get update -qq
   - sudo apt-get install bitcoind -y
+  - wget https://download.litecoin.org/litecoin-0.16.3/linux/litecoin-0.16.3-x86_64-linux-gnu.tar.gz
+  - tar -xvfz litecoin-0.16.3-x86_64-linux-gnu.tar.gz
+  - export PATH=~/litecoin-0.16.3/bin:$PATH
 
 apt_packages:
   - bitcoind
@@ -17,4 +20,5 @@ apt_packages:
 before_script:
   # - mkdir -p /home/travis/.bitcoin && cp bitcoin.conf /home/travis/.bitcoin/bitcoin.conf
   - bitcoind -regtest -daemon
+  - litecoind -regtest -daemon
   - sleep 15

@@ -1,27 +1,6 @@
-require 'json'
 require 'tmpdir'
 
-RSpec.describe 'Bitcoin' do
-  def run_command(cmd, v: false, run_mode: :inline)
-    puts "==> #{cmd}"
-    case run_mode
-    when :inline
-      output = `#{cmd}`
-      puts output if v
-      output
-    when :system
-      success = system cmd
-      expect(success).to be_truthy
-      success
-    when :daemon
-      pid = spawn cmd
-      sleep (ENV['BOOTSTRAP'] || 10).to_i
-      pid
-    else
-      raise "dont know how to run #{run_mode}"
-    end
-  end
-
+RSpec.describe Bitcoin do
   describe Bitcoin::Address do
     it '.from_pk' do
       k = 0x18e14a7b6a307f426a94f8114701e7c8e774e7f9a47e2c2035db29a206321725
@@ -56,9 +35,9 @@ RSpec.describe 'Bitcoin' do
       run_command "bitcoin-cli -regtest generatetoaddress 101 #{address}", run_mode: :inline
     end
 
-    it 'spend address' do
+    it 'address' do
       output = run_command "bitcoin-cli -regtest listunspent 1 9999 \"[\\\"#{address}\\\"]\"", v: false
-      input = Bitcoin.input_from_utxo output
+      input = Input.from_utxo output
       # puts input.inspect
 
       output_script = bitcoin_script destination_address
@@ -128,14 +107,4 @@ RSpec.describe 'Bitcoin' do
     end
   end
 
-  describe 'bitcoin' do
-    it 'bitcoin_base58_encode' do
-      result = bitcoin_base58_encode '00f54a5851e9372b87810a8e60cdd2e7cfd80b6e31c7f18fe8'
-      expect(result).to eq '1PMycacnJaSqwwJqjawXBErnLsZ7RkXUAs'
-    end
-    it 'bitcoin_base58_decode' do
-      result = bitcoin_base58_decode '1PMycacnJaSqwwJqjawXBErnLsZ7RkXUAs'
-      expect(result).to eq '00f54a5851e9372b87810a8e60cdd2e7cfd80b6e31c7f18fe8'
-    end
-  end
 end
