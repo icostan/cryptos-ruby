@@ -22,16 +22,32 @@ RSpec.describe 'Bitcoin' do
     end
   end
 
+  describe Bitcoin::Address do
+    it '.from_pk' do
+      k = 0x18e14a7b6a307f426a94f8114701e7c8e774e7f9a47e2c2035db29a206321725
+      public_key = bitcoin_new_public_key k
+      expect(public_key).to eq '0250863ad64a87ae8a2fe83c1af1a8403cb53f53e486d8511dad8a04887e5b2352'
+      address = Bitcoin::Address.from_pk public_key
+      expect(address.to_s).to eq 'n3svudhm7bt6j3nTT9uu1A57Cs9pKK3iXW'
+      address = Bitcoin::Address.from_pk public_key, 0x00
+      expect(address.to_s).to eq '1PMycacnJaSqwwJqjawXBErnLsZ7RkXUAs'
+    end
+    it '#to_hash160' do
+      address = Bitcoin::Address.new '2NFrxEjw5v2i7L8pm9dWjWSFpDRXmj8dBTn'
+      expect(address.to_hash160).to eq 'f81498040e79014455a5e8f7bd39bce5428121d3'
+    end
+  end
+
   describe 'spend' do
     let(:private_key) {
       # 0x18e14a7b6a307f426a94f8114701e7c8e774e7f9a47e2c2035db29a206321725
       bitcoin_new_private_key
     }
     let(:public_key) { bitcoin_new_public_key private_key }
-    let(:address) { bitcoin_new_address public_key }
+    let(:address) { Bitcoin::Address.from_pk public_key }
     let(:destination_address) {
       # 'n1C8nsmi4sc4hMBGgVZrnhxeFtk1sTbMZ4'
-      bitcoin_new_address bitcoin_new_public_key bitcoin_new_private_key
+      Bitcoin::Address.from_pk bitcoin_new_public_key bitcoin_new_private_key
     }
 
     before do
@@ -62,16 +78,6 @@ RSpec.describe 'Bitcoin' do
       output = run_command "bitcoin-cli -regtest getreceivedbyaddress #{destination_address}"
       expect(output).to include '1.00000000'
     end
-  end
-
-  it 'generate address' do
-    k = 0x18e14a7b6a307f426a94f8114701e7c8e774e7f9a47e2c2035db29a206321725
-    public_key = bitcoin_new_public_key k
-    expect(public_key).to eq '0250863ad64a87ae8a2fe83c1af1a8403cb53f53e486d8511dad8a04887e5b2352'
-    address = bitcoin_new_address public_key, '00'
-    expect(address).to eq '1PMycacnJaSqwwJqjawXBErnLsZ7RkXUAs'
-    address = bitcoin_new_address public_key, '6f'
-    expect(address).to eq 'n3svudhm7bt6j3nTT9uu1A57Cs9pKK3iXW'
   end
 
   describe Transaction do
@@ -130,10 +136,6 @@ RSpec.describe 'Bitcoin' do
     it 'bitcoin_base58_decode' do
       result = bitcoin_base58_decode '1PMycacnJaSqwwJqjawXBErnLsZ7RkXUAs'
       expect(result).to eq '00f54a5851e9372b87810a8e60cdd2e7cfd80b6e31c7f18fe8'
-    end
-    it 'bitcoin_address_decode' do
-      result = bitcoin_address_decode '2NFrxEjw5v2i7L8pm9dWjWSFpDRXmj8dBTn'
-      expect(result).to eq 'f81498040e79014455a5e8f7bd39bce5428121d3'
     end
   end
 end
