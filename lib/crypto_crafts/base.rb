@@ -1,3 +1,6 @@
+require 'json'
+require 'digest'
+
 class Struct
   OPCODES = {
     'OP_DUP' =>  0x76,
@@ -68,6 +71,61 @@ def bignum_to_bytes(n, length=nil, stringify=true)
   a.fill 0x00, a.length, length - a.length if length
   bytes = a.reverse
   stringify ? bytes.pack('C*') : bytes
+end
+
+Input = Struct.new :value, :tx_hash, :index, :unlock_script, :sequence do
+  def self.from_utxo(data, options = {debug: false})
+    utxo = JSON.parse(data).first
+    puts utxo if options[:debug]
+    txid = utxo['txid']
+    vout = utxo['vout']
+    amount = utxo['amount']
+    Input.new amount * 10**8, txid, vout
+  end
+  def initialize(value, tx_hash, index, unlock_script: '', sequence: 0xfffffffff)
+    super value, tx_hash, index, unlock_script, sequence
+  end
+  def serialize
+    script_hex = script_to_hex(unlock_script)
+    hash_to_hex(tx_hash) + int_to_hex(index) +
+      byte_to_hex(hex_size(script_hex)) + script_hex + int_to_hex(sequence)
+  end
+end
+
+Output = Struct.new :value, :lock_script do
+  def serialize
+    script_hex = script_to_hex(lock_script)
+    long_to_hex(value) + byte_to_hex(hex_size(script_hex)) + script_hex
+  end
+end
+
+Transaction = Struct.new :version, :inputs, :outputs, :locktime do
+  def serialize
+    inputs_hex = inputs.map(&:serialize).join
+    outputs_hex = outputs.map(&:serialize).join
+    int_to_hex(version) + byte_to_hex(inputs.size) + inputs_hex +
+      byte_to_hex(outputs.size) + outputs_hex + int_to_hex(locktime)
+  end
+
+  def hash
+    hash_to_hex sha256(sha256(serialize))
+  end
+
+  def signature_hash(lock_script = nil, sighash_type = 0x1)
+    inputs.first.unlock_script = lock_script if lock_script
+    hash = sha256(sha256(serialize + int_to_hex(sighash_type)))
+    [hash].pack('H*')
+  end
+
+  def sign(private_key, public_key, lock_script, sighash_type = 0x01)
+    bytes_string = signature_hash lock_script, sighash_type
+    r, s = ecdsa_sign private_key.value, bytes_string
+    puts "r: #{r}"
+    puts "s: #{s}"
+    der = Der.new r: r, s: s
+    inputs.first.unlock_script = "#{der.serialize} #{public_key.compressed}"
+    serialize
+  end
 end
 
 Der = Struct.new :der, :length, :ri, :rl, :r, :si, :sl, :s, :sighash_type do

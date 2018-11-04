@@ -3,12 +3,12 @@ require 'spec_helper'
 RSpec.describe Litecoin do
   describe 'spend' do
     let(:private_key) {
-      bitcoin_new_private_key
+      PrivateKey.generate
     }
-    let(:public_key) { bitcoin_new_public_key private_key }
+    let(:public_key) { PublicKey.from_pk private_key }
     let(:address) { Litecoin::Address.from_pk public_key }
     let(:destination_address) {
-      Litecoin::Address.from_pk bitcoin_new_public_key bitcoin_new_private_key
+      Litecoin::Address.from_pk PublicKey.from_pk PrivateKey.generate
     }
     let(:cli) { 'litecoin-cli' }
 
@@ -23,14 +23,14 @@ RSpec.describe Litecoin do
       input = Input.from_utxo output
       # puts input.inspect
 
-      output_script = bitcoin_script destination_address
+      output_script = Bitcoin::Script.for_address destination_address
       output = Output.new 100_000_000, output_script
 
       change_value = input.value - output.value - 10_000
-      change_script = bitcoin_script address
+      change_script = Bitcoin::Script.for_address address
       change = Output.new change_value, change_script
 
-      lock_script = bitcoin_script address
+      lock_script = Bitcoin::Script.for_address address
       t = Transaction.new 1, [input], [output, change], 0
       rawtx = t.sign private_key, public_key, lock_script
       run_command "#{cli} -regtest sendrawtransaction #{rawtx}", run_mode: :system
