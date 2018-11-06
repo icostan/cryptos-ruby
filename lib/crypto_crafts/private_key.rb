@@ -12,4 +12,8 @@ class PrivateKey
     @value = value
     @order = order
   end
+
+  def to_s
+    value
+  end
 end

@@ -30,5 +30,9 @@ module Bitcoin
     def to_s
       value
     end
+
+    def rich
+      self.class.from_pk(public_key, 0x00).value
+    end
   end
 end

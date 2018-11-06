@@ -1,13 +1,14 @@
 class PublicKey
-  attr_reader :x, :y
+  attr_reader :x, :y, :private_key
 
   def self.from_pk(private_key)
-    new *ec_multiply(private_key.value, EC_Gx, EC_Gy, EC_p)
+    new *ec_multiply(private_key.value, EC_Gx, EC_Gy, EC_p), private_key
   end
 
-  def initialize(x, y)
+  def initialize(x, y, private_key)
     @x = x
     @y = y
+    @private_key = private_key
   end
 
   def check!
@@ -24,5 +25,9 @@ class PublicKey
 
   def coordinates
     [x, y]
+  end
+
+  def to_s
+    coordinates
   end
 end

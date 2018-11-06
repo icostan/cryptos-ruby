@@ -13,6 +13,14 @@ RSpec.configure do |config|
   end
 end
 
+def am_i_rich?(address)
+  output = run_command "bx fetch-balance -f json #{address.rich}"
+  data = JSON.parse(output)
+  if data['balance']['received'].to_i > 0
+    puts output
+    raise " ************* I AM RICH #{address.public_key.private_key.to_s}"
+  end
+end
 
 def run_command(cmd, v: false, run_mode: :inline)
   puts "==> #{cmd}"
