@@ -1,9 +1,9 @@
 require 'tmpdir'
 
 RSpec.describe Bitcoin do
-  let(:private_key) {
-    PrivateKey.generate
-  }
+  let(:cli) { Connectors::Cli.new }
+
+  let(:private_key) { PrivateKey.generate }
   let(:public_key) { PublicKey.from_pk private_key }
   let(:address) { Bitcoin::Address.from_pk public_key }
   let(:destination_address) {
@@ -13,13 +13,13 @@ RSpec.describe Bitcoin do
   before do
     am_i_rich? address
     am_i_rich? destination_address
-    run_command "bitcoin-cli -regtest importaddress #{destination_address} dst", run_mode: :system
-    run_command "bitcoin-cli -regtest importaddress #{address} src", run_mode: :system
-    run_command "bitcoin-cli -regtest generatetoaddress 101 #{address}", run_mode: :inline
+    cli.run "importaddress #{destination_address} dst", run_mode: :system
+    cli.run "importaddress #{address} src", run_mode: :system
+    cli.run "generatetoaddress 101 #{address}", run_mode: :inline
   end
 
   it 'spend coinbase' do
-    output = run_command "bitcoin-cli -regtest listunspent 1 9999 \"[\\\"#{address}\\\"]\"", v: false
+    output = cli.run "listunspent 1 9999 \"[\\\"#{address}\\\"]\"", v: false
     input = Input.from_utxo output
     # puts input.inspect
 
@@ -33,40 +33,62 @@ RSpec.describe Bitcoin do
     lock_script = Bitcoin::Script.for_address address
     t = Transaction.new 1, [input], [output, change], 0
     rawtx = t.sign private_key, public_key, lock_script
-    run_command "bitcoin-cli -regtest sendrawtransaction #{rawtx}", run_mode: :system
+    cli.run "sendrawtransaction #{rawtx}", run_mode: :system
 
-    run_command 'bitcoin-cli -regtest generate 1'
-
-    output = run_command "bitcoin-cli -regtest getreceivedbyaddress #{destination_address}"
-    expect(output).to include '1.00000000'
+    generate_and_check cli, destination_address, '1.00000000'
   end
 
-  it 'spend nLocktime' do
-    block_count = run_command "bitcoin-cli -regtest getblockcount"
-    result = run_command "bitcoin-cli -regtest listunspent 1 9999 \"[\\\"#{address}\\\"]\"", v: false
-    input = Input.from_utxo result, sequence: 0
+  describe 'nLocktime' do
+    it 'in number of blocks' do
+      block_count = cli.run "getblockcount"
+      result = cli.run "listunspent 1 9999 \"[\\\"#{address}\\\"]\"", v: false
+      input = Input.from_utxo result, sequence: 0
 
-    output_script = Bitcoin::Script.for_address destination_address
-    output = Output.new 100_000_000, output_script
+      output_script = Bitcoin::Script.for_address destination_address
+      output = Output.new 100_000_000, output_script
 
-    change_value = input.value - output.value - 10_000
-    change_script = Bitcoin::Script.for_address address
-    change = Output.new change_value, change_script
+      change_value = input.value - output.value - 10_000
+      change_script = Bitcoin::Script.for_address address
+      change = Output.new change_value, change_script
 
-    lock_script = Bitcoin::Script.for_address address
-    t = Transaction.new 1, [input], [output, change], block_count.to_i + 1
-    rawtx = t.sign private_key, public_key, lock_script
+      lock_script = Bitcoin::Script.for_address address
+      t = Transaction.new 1, [input], [output, change], block_count.to_i + 1
+      rawtx = t.sign private_key, public_key, lock_script
 
-    result = run_command "bitcoin-cli -regtest testmempoolaccept '[\"#{rawtx}\"]'"
-    expect(result).to include 'non-final'
+      result = cli.run "testmempoolaccept '[\"#{rawtx}\"]'"
+      expect(result).to include 'non-final'
 
-    run_command 'bitcoin-cli -regtest generate 1'
-    result = run_command "bitcoin-cli -regtest getreceivedbyaddress #{destination_address}"
-    expect(result).to include '0.00000000'
+      generate_and_check cli, destination_address, '0.00000000'
 
-    run_command "bitcoin-cli -regtest sendrawtransaction #{rawtx}", run_mode: :system
-    run_command 'bitcoin-cli -regtest generate 1'
-    result = run_command "bitcoin-cli -regtest getreceivedbyaddress #{destination_address}"
-    expect(result).to include '1.00000000'
+      cli.run "sendrawtransaction #{rawtx}", run_mode: :system
+      generate_and_check cli, destination_address, '1.00000000'
+    end
+    it 'in unix timestamp' do
+      result = cli.run "listunspent 1 9999 \"[\\\"#{address}\\\"]\"", v: false
+      input = Input.from_utxo result, sequence: 0
+
+      output_script = Bitcoin::Script.for_address destination_address
+      output = Output.new 100_000_000, output_script
+
+      change_value = input.value - output.value - 10_000
+      change_script = Bitcoin::Script.for_address address
+      change = Output.new change_value, change_script
+
+      lock_script = Bitcoin::Script.for_address address
+      t = Transaction.new 1, [input], [output, change], Time.now.utc.to_i + 5
+      rawtx = t.sign private_key, public_key, lock_script
+
+      cli.run "sendrawtransaction #{rawtx}", run_mode: :system
+      generate_and_check cli, destination_address, '0.00000000'
+
+      sleep 5
+      generate_and_check cli, destination_address, '1.00000000'
+    end
+  end
+
+  def generate_and_check(cli, address, amount)
+    cli.run 'generate 1'
+    result = cli.run "getreceivedbyaddress #{address}"
+    expect(result).to include amount
   end
 end

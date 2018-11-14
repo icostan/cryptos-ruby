@@ -1,25 +1,24 @@
 require 'spec_helper'
 
 RSpec.describe Litecoin do
+  let(:cli) { Connectors::Cli.new 'litecoin-cli' }
+
   describe 'spend' do
-    let(:private_key) {
-      PrivateKey.generate
-    }
+    let(:private_key) { PrivateKey.generate }
     let(:public_key) { PublicKey.from_pk private_key }
     let(:address) { Litecoin::Address.from_pk public_key }
     let(:destination_address) {
       Litecoin::Address.from_pk PublicKey.from_pk PrivateKey.generate
     }
-    let(:cli) { 'litecoin-cli' }
 
     before do
-      run_command "#{cli} -regtest importaddress #{destination_address} dst", run_mode: :system
-      run_command "#{cli} -regtest importaddress #{address} src", run_mode: :system
-      run_command "#{cli} -regtest generatetoaddress 101 #{address}", run_mode: :inline
+      cli.run "importaddress #{destination_address} dst", run_mode: :system
+      cli.run "importaddress #{address} src", run_mode: :system
+      cli.run "generatetoaddress 101 #{address}", run_mode: :inline
     end
 
     it 'address' do
-      output = run_command "#{cli} -regtest listunspent 1 9999 \"[\\\"#{address}\\\"]\"", v: false
+      output = cli.run "listunspent 1 9999 \"[\\\"#{address}\\\"]\"", v: false
       input = Input.from_utxo output
       # puts input.inspect
 
@@ -33,11 +32,11 @@ RSpec.describe Litecoin do
       lock_script = Bitcoin::Script.for_address address
       t = Transaction.new 1, [input], [output, change], 0
       rawtx = t.sign private_key, public_key, lock_script
-      run_command "#{cli} -regtest sendrawtransaction #{rawtx}", run_mode: :system
+      cli.run "sendrawtransaction #{rawtx}", run_mode: :system
 
-      run_command "#{cli} -regtest generate 1"
+      cli.run "generate 1"
 
-      output = run_command "#{cli} -regtest getreceivedbyaddress #{destination_address}"
+      output = cli.run "getreceivedbyaddress #{destination_address}"
       expect(output).to include '1.00000000'
     end
   end
