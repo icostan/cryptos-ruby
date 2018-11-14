@@ -4,6 +4,7 @@ require 'crypto_crafts/base'
 require 'crypto_crafts/base58'
 require 'crypto_crafts/hashing'
 require 'crypto_crafts/elliptic_curve'
+require 'crypto_crafts/connectors/cli'
 
 require 'crypto_crafts/private_key'
 require 'crypto_crafts/public_key'
