@@ -1,4 +1,4 @@
-require 'tmpdir'
+# require 'tmpdir'
 
 RSpec.describe Bitcoin do
   let(:cli) { Connectors::Cli.new }
@@ -63,6 +63,7 @@ RSpec.describe Bitcoin do
       cli.run "sendrawtransaction #{rawtx}", run_mode: :system
       generate_and_check cli, destination_address, '1.00000000'
     end
+
     it 'in unix timestamp' do
       result = cli.run "listunspent 1 9999 \"[\\\"#{address}\\\"]\"", v: false
       input = Input.from_utxo result, sequence: 0
