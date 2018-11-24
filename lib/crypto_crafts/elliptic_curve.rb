@@ -67,7 +67,7 @@ def ecdsa_sign(private_key, digest, temp_key = nil)
   s > 0 || raise('s is zero, try again new temp key')
   if s > LOW_S
     # https://github.com/bitcoin/bips/blob/master/bip-0062.mediawiki#low-s-values-in-signatures
-    puts 'WARN: s is too big, use low s values'
+    # puts 'WARN: s is too big, use low s values'
     s = (EC_n - s) % EC_n
   end
   [r, s]

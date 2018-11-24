@@ -47,3 +47,9 @@ def run_command(cmd, v: false, run_mode: :inline)
     raise "dont know how to run #{run_mode}"
   end
 end
+
+def generate_and_check(cli, address, amount)
+  cli.run 'generate 1'
+  result = cli.run "getreceivedbyaddress #{address}"
+  expect(result).to include amount
+end

@@ -28,6 +28,6 @@ class PublicKey
   end
 
   def to_s
-    coordinates
+    coordinates.to_s
   end
 end

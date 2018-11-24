@@ -1,95 +1,68 @@
 # require 'tmpdir'
 
 RSpec.describe Bitcoin do
-  let(:cli) { Connectors::Cli.new }
-
-  let(:private_key) { PrivateKey.generate }
-  let(:public_key) { PublicKey.from_pk private_key }
-  let(:address) { Bitcoin::Address.from_pk public_key }
-  let(:destination_address) {
+  let(:to_address) {
     Bitcoin::Address.from_pk PublicKey.from_pk PrivateKey.generate
   }
 
+  before :all do
+    @cli = Connectors::Cli.new
+    @private_key = PrivateKey.generate
+    @public_key = PublicKey.from_pk @private_key
+    @from_address = Bitcoin::Address.from_pk @public_key
+    @cli.run "importaddress #{@from_address} src", run_mode: :system
+    @cli.run "generatetoaddress 105 #{@from_address}", run_mode: :inline
+    @utxos = @cli.run "listunspent 1 9999 \"[\\\"#{@from_address}\\\"]\"", v: false
+  end
+
   before do
-    am_i_rich? address
-    am_i_rich? destination_address
-    cli.run "importaddress #{destination_address} dst", run_mode: :system
-    cli.run "importaddress #{address} src", run_mode: :system
-    cli.run "generatetoaddress 101 #{address}", run_mode: :inline
+    @cli.run "importaddress #{to_address} dst", run_mode: :system
   end
 
   it 'spend coinbase' do
-    output = cli.run "listunspent 1 9999 \"[\\\"#{address}\\\"]\"", v: false
-    input = Input.from_utxo output
-    # puts input.inspect
+    input = Input.from_utxo @utxos, 0
+    output = Output.p2pkh to_address, 100_000_000
+    change = Output.p2pkh_change @from_address, input, output
 
-    output_script = Bitcoin::Script.for_address destination_address
-    output = Output.new 100_000_000, output_script
+    transaction = Transaction.from_ioc input, output, change
+    rawtx = transaction.sign_input 0, @from_address
 
-    change_value = input.value - output.value - 10_000
-    change_script = Bitcoin::Script.for_address address
-    change = Output.new change_value, change_script
-
-    lock_script = Bitcoin::Script.for_address address
-    t = Transaction.new 1, [input], [output, change], 0
-    rawtx = t.sign private_key, public_key, lock_script
-    cli.run "sendrawtransaction #{rawtx}", run_mode: :system
-
-    generate_and_check cli, destination_address, '1.00000000'
+    @cli.run "sendrawtransaction #{rawtx}", run_mode: :system
+    generate_and_check @cli, to_address, '1.00000000'
   end
 
   describe 'nLocktime' do
-    it 'in number of blocks' do
-      block_count = cli.run "getblockcount"
-      result = cli.run "listunspent 1 9999 \"[\\\"#{address}\\\"]\"", v: false
-      input = Input.from_utxo result, sequence: 0
+    it 'as number of blocks' do
+      input = Input.from_utxo @utxos, 1, sequence: 0
+      output = Output.p2pkh to_address, 100_000_000
+      change = Output.p2pkh_change @from_address, input, output
 
-      output_script = Bitcoin::Script.for_address destination_address
-      output = Output.new 100_000_000, output_script
+      locktime = @cli.run("getblockcount").to_i + 1
+      transaction = Transaction.from_ioc input, output, change, locktime: locktime
+      rawtx = transaction.sign_input 0, @from_address
 
-      change_value = input.value - output.value - 10_000
-      change_script = Bitcoin::Script.for_address address
-      change = Output.new change_value, change_script
-
-      lock_script = Bitcoin::Script.for_address address
-      t = Transaction.new 1, [input], [output, change], block_count.to_i + 1
-      rawtx = t.sign private_key, public_key, lock_script
-
-      result = cli.run "testmempoolaccept '[\"#{rawtx}\"]'"
+      result = @cli.run "testmempoolaccept '[\"#{rawtx}\"]'"
       expect(result).to include 'non-final'
 
-      generate_and_check cli, destination_address, '0.00000000'
+      generate_and_check @cli, to_address, '0.00000000'
 
-      cli.run "sendrawtransaction #{rawtx}", run_mode: :system
-      generate_and_check cli, destination_address, '1.00000000'
+      @cli.run "sendrawtransaction #{rawtx}", run_mode: :system
+      generate_and_check @cli, to_address, '1.00000000'
     end
 
-    it 'in unix timestamp' do
-      result = cli.run "listunspent 1 9999 \"[\\\"#{address}\\\"]\"", v: false
-      input = Input.from_utxo result, sequence: 0
+    it 'as unix timestamp' do
+      input = Input.from_utxo @utxos, 2, sequence: 0
+      output = Output.p2pkh to_address, 100_000_000
+      change = Output.p2pkh_change @from_address, input, output
 
-      output_script = Bitcoin::Script.for_address destination_address
-      output = Output.new 100_000_000, output_script
+      transaction = Transaction.from_ioc input, output, change, locktime: Time.now.utc.to_i + 5
+      rawtx = transaction.sign_input 0, @from_address
 
-      change_value = input.value - output.value - 10_000
-      change_script = Bitcoin::Script.for_address address
-      change = Output.new change_value, change_script
-
-      lock_script = Bitcoin::Script.for_address address
-      t = Transaction.new 1, [input], [output, change], Time.now.utc.to_i + 5
-      rawtx = t.sign private_key, public_key, lock_script
-
-      cli.run "sendrawtransaction #{rawtx}", run_mode: :system
-      generate_and_check cli, destination_address, '0.00000000'
+      @cli.run "sendrawtransaction #{rawtx}", run_mode: :system
+      generate_and_check @cli, to_address, '0.00000000'
 
       sleep 5
-      generate_and_check cli, destination_address, '1.00000000'
+      generate_and_check @cli, to_address, '1.00000000'
     end
-  end
-
-  def generate_and_check(cli, address, amount)
-    cli.run 'generate 1'
-    result = cli.run "getreceivedbyaddress #{address}"
-    expect(result).to include amount
   end
 end

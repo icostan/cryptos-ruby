@@ -1,43 +1,32 @@
 require 'spec_helper'
 
 RSpec.describe Litecoin do
-  let(:cli) { Connectors::Cli.new 'litecoin-cli' }
+  before :all do
+    @cli = Connectors::Cli.new 'litecoin-cli'
+    @private_key = PrivateKey.generate
+    @public_key = PublicKey.from_pk @private_key
+    @from_address = Litecoin::Address.from_pk @public_key
+    @cli.run "importaddress #{@from_address} src", run_mode: :system
+    @cli.run "generatetoaddress 105 #{@from_address}", run_mode: :inline
+    @utxos = @cli.run "listunspent 1 9999 \"[\\\"#{@from_address}\\\"]\"", v: false
+  end
+
+  let(:to_address) { Litecoin::Address.from_pk PublicKey.from_pk PrivateKey.generate }
+  before do
+    @cli.run "importaddress #{to_address} dst", run_mode: :system
+  end
 
   describe 'spend' do
-    let(:private_key) { PrivateKey.generate }
-    let(:public_key) { PublicKey.from_pk private_key }
-    let(:address) { Litecoin::Address.from_pk public_key }
-    let(:destination_address) {
-      Litecoin::Address.from_pk PublicKey.from_pk PrivateKey.generate
-    }
+    it 'coinbase' do
+      input = Input.from_utxo @utxos, 0
+      output = Output.p2pkh to_address, 100_000_000
+      change = Output.p2pkh_change @from_address, input, output
+      transaction = Transaction.from_ioc input, output, change
 
-    before do
-      cli.run "importaddress #{destination_address} dst", run_mode: :system
-      cli.run "importaddress #{address} src", run_mode: :system
-      cli.run "generatetoaddress 101 #{address}", run_mode: :inline
+      rawtx = transaction.sign_input 0, @from_address
+      @cli.run "sendrawtransaction #{rawtx}", run_mode: :system
+      generate_and_check @cli, to_address, '1.00000000'
     end
-
-    it 'address' do
-      output = cli.run "listunspent 1 9999 \"[\\\"#{address}\\\"]\"", v: false
-      input = Input.from_utxo output
-      # puts input.inspect
-
-      output_script = Bitcoin::Script.for_address destination_address
-      output = Output.new 100_000_000, output_script
-
-      change_value = input.value - output.value - 10_000
-      change_script = Bitcoin::Script.for_address address
-      change = Output.new change_value, change_script
-
-      lock_script = Bitcoin::Script.for_address address
-      t = Transaction.new 1, [input], [output, change], 0
-      rawtx = t.sign private_key, public_key, lock_script
-      cli.run "sendrawtransaction #{rawtx}", run_mode: :system
-
-      cli.run "generate 1"
-
-      output = cli.run "getreceivedbyaddress #{destination_address}"
-      expect(output).to include '1.00000000'
-    end
+    it 'multisig'
   end
 end

@@ -74,8 +74,8 @@ def bignum_to_bytes(n, length=nil, stringify=true)
 end
 
 Input = Struct.new :value, :tx_hash, :index, :unlock_script, :sequence do
-  def self.from_utxo(data, options = {debug: false})
-    utxo = JSON.parse(data).first
+  def self.from_utxo(data, index = 0, options = {debug: false})
+    utxo = JSON.parse(data)[index]
     puts utxo if options[:debug]
     txid = utxo['txid']
     vout = utxo['vout']
@@ -94,6 +94,14 @@ Input = Struct.new :value, :tx_hash, :index, :unlock_script, :sequence do
 end
 
 Output = Struct.new :value, :lock_script do
+  def self.p2pkh(address, amount)
+    output_script = Bitcoin::Script.for_address address
+    Output.new amount, output_script
+  end
+  def self.p2pkh_change(address, input, output, fee = 10_000)
+    change_value = input.value - output.value - fee
+    Output.p2pkh address, change_value
+  end
   def serialize
     script_hex = script_to_hex(lock_script)
     long_to_hex(value) + byte_to_hex(hex_size(script_hex)) + script_hex
@@ -101,6 +109,9 @@ Output = Struct.new :value, :lock_script do
 end
 
 Transaction = Struct.new :version, :inputs, :outputs, :locktime do
+  def self.from_ioc(input, output, change, version: 1, locktime: 0)
+    new version, [input], [output, change], locktime
+  end
   def serialize
     inputs_hex = inputs.map(&:serialize).join
     outputs_hex = outputs.map(&:serialize).join
@@ -112,7 +123,7 @@ Transaction = Struct.new :version, :inputs, :outputs, :locktime do
     hash_to_hex sha256(sha256(serialize))
   end
 
-  def signature_hash(lock_script = nil, sighash_type = 0x1)
+  def signature_hash(lock_script = nil, sighash_type = 0x01)
     inputs.first.unlock_script = lock_script if lock_script
     hash = sha256(sha256(serialize + int_to_hex(sighash_type)))
     [hash].pack('H*')
@@ -121,11 +132,21 @@ Transaction = Struct.new :version, :inputs, :outputs, :locktime do
   def sign(private_key, public_key, lock_script, sighash_type = 0x01)
     bytes_string = signature_hash lock_script, sighash_type
     r, s = ecdsa_sign private_key.value, bytes_string
-    # puts "r: #{r}"
-    # puts "s: #{s}"
     der = Der.new r: r, s: s
     inputs.first.unlock_script = "#{der.serialize} #{public_key.compressed}"
     serialize
+  end
+  def sign_input(index, address, sighash_type = 0x01)
+    # TODO: get lock_script from input?
+    lock_script = Bitcoin::Script.for_address address
+    bytes_string = signature_hash lock_script, sighash_type
+    r, s = ecdsa_sign address.public_key.private_key.value, bytes_string
+    der = Der.new r: r, s: s
+    inputs[index].unlock_script = "#{der.serialize} #{address.public_key.compressed}"
+    serialize
+  end
+  def to_s
+    "Transaction[inputs:#{inputs.map &:value}, outputs:#{outputs.map &:value}"
   end
 end
 
