@@ -2,14 +2,14 @@
 
 RSpec.describe Bitcoin do
   let(:to_address) {
-    Bitcoin::Address.from_pk PublicKey.from_pk PrivateKey.generate
+    Bitcoin::Address.new PublicKey.from_pk PrivateKey.generate
   }
 
   before :all do
     @cli = Connectors::Cli.new
     @private_key = PrivateKey.generate
     @public_key = PublicKey.from_pk @private_key
-    @from_address = Bitcoin::Address.from_pk @public_key
+    @from_address = Bitcoin::Address.new @public_key
     @cli.run "importaddress #{@from_address} src", run_mode: :system
     @cli.run "generatetoaddress 105 #{@from_address}", run_mode: :inline
     @utxos = @cli.run "listunspent 1 9999 \"[\\\"#{@from_address}\\\"]\"", v: false

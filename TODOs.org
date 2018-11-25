@@ -6,3 +6,4 @@
   * brew litecoin, move cask
   * autoload modules
   * deterministic signature (https://tools.ietf.org/html/rfc6979)
+  * refactor elliptic curve module, extract to classes

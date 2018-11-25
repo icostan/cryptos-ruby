@@ -11,6 +11,12 @@ require 'crypto_crafts/connectors/cli'
 
 require 'crypto_crafts/private_key'
 require 'crypto_crafts/public_key'
+require 'crypto_crafts/address'
+require 'crypto_crafts/script'
+require 'crypto_crafts/input'
+require 'crypto_crafts/output'
+require 'crypto_crafts/transaction'
+require 'crypto_crafts/der'
 
 # currencies
 require 'crypto_crafts/bitcoin'
