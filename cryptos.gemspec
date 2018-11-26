@@ -1,16 +1,16 @@
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'crypto_crafts/version'
+require 'cryptos/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = 'crypto_crafts'
+  spec.name          = 'cryptos'
   spec.version       = CryptoCrafts::VERSION
   spec.authors       = ['Iulian Costan']
   spec.email         = ['iulian.costan@gmail.com']
 
   spec.summary       = %q{Crypto craft your own transactions}
   spec.description   = %q{The easiest way to craft your own transactions for multiple crypto currencies}
-  spec.homepage      = 'https://github.com/icostan/crypto_crafts'
+  spec.homepage      = 'https://github.com/icostan/cryptos'
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
   # to allow pushing to a single host or delete this section to allow pushing to any host.
@@ -18,8 +18,8 @@ Gem::Specification.new do |spec|
     spec.metadata['allowed_push_host'] = 'https://rubygems.org'
 
     spec.metadata['homepage_uri'] = spec.homepage
-    spec.metadata['source_code_uri'] = 'https://github.com/icostan/crypto_crafts.git'
-    spec.metadata['changelog_uri'] = 'https://github.com/icostan/crypto_crafts/blob/master/CHANGELOG'
+    spec.metadata['source_code_uri'] = 'https://github.com/icostan/cryptos.git'
+    spec.metadata['changelog_uri'] = 'https://github.com/icostan/cryptos/blob/master/CHANGELOG'
   else
     raise 'RubyGems 2.0 or newer is required to protect against ' \
       'public gem pushes.'

@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    crypto_crafts (0.1.0)
+    cryptos (0.1.0)
       hashie
       httparty
 
@@ -43,7 +43,7 @@ PLATFORMS
 
 DEPENDENCIES
   bundler
-  crypto_crafts!
+  cryptos!
   ecdsa
   pry
   rake

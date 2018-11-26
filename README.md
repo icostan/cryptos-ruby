@@ -1,8 +1,8 @@
-# CryptoCrafts
-[![Build Status](https://travis-ci.org/icostan/crypto_crafts.svg?branch=master)](https://travis-ci.org/icostan/crypto_crafts)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/50a2b33cfb10cd5293dc/test_coverage)](https://codeclimate.com/github/icostan/crypto_crafts/test_coverage)
+# Cryptos
+[![Build Status](https://travis-ci.org/icostan/cryptos.svg?branch=master)](https://travis-ci.org/icostan/cryptos)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/50a2b33cfb10cd5293dc/test_coverage)](https://codeclimate.com/github/icostan/cryptos/test_coverage)
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/crypto_crafts`. To experiment with that code, run `bin/console` for an interactive prompt.
+Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/cryptos`. To experiment with that code, run `bin/console` for an interactive prompt.
 
 TODO: Delete this and the text above, and describe your gem
 
@@ -11,7 +11,7 @@ TODO: Delete this and the text above, and describe your gem
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'crypto_crafts'
+gem 'cryptos'
 ```
 
 And then execute:
@@ -20,7 +20,7 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install crypto_crafts
+    $ gem install cryptos
 
 ## Usage
 
@@ -34,8 +34,8 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/icostan/crypto_crafts. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+Bug reports and pull requests are welcome on GitHub at https://github.com/icostan/cryptos. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
 
 ## Code of Conduct
 
-Everyone interacting in the CryptoCrafts project’s codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/icostan/crypto_crafts/blob/master/CODE_OF_CONDUCT.md).
+Everyone interacting in the CryptoCrafts project’s codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/icostan/cryptos/blob/master/CODE_OF_CONDUCT.md).

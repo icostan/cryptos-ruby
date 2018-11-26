@@ -1,5 +1,5 @@
 require 'bundler/setup'
-require 'crypto_crafts'
+require 'cryptos'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
