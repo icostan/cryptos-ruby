@@ -23,8 +23,8 @@ module Cryptos
     def sign(private_key, public_key, lock_script, sighash_type = 0x01)
       bytes_string = signature_hash lock_script, sighash_type
       r, s = ecdsa_sign private_key.value, bytes_string
-      der = Der.new r: r, s: s
-      inputs.first.unlock_script = "#{der.serialize} #{public_key.compressed}"
+      der = Cryptos::Der.new r: r, s: s
+      inputs.first.unlock_script = "#{der.serialize} #{public_key.sec}"
       serialize
     end
     def sign_input(index, address, sighash_type = 0x01)
@@ -32,8 +32,8 @@ module Cryptos
       lock_script = Cryptos::Script.for_address address
       bytes_string = signature_hash lock_script, sighash_type
       r, s = ecdsa_sign address.public_key.private_key.value, bytes_string
-      der = Der.new r: r, s: s
-      inputs[index].unlock_script = "#{der.serialize} #{address.public_key.compressed}"
+      der = Cryptos::Der.new r: r, s: s
+      inputs[index].unlock_script = "#{der.serialize} #{address.public_key.sec}"
       serialize
     end
     def to_s

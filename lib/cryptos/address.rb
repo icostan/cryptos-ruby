@@ -16,7 +16,7 @@ module Cryptos
     #
     def generate(network)
       prefix = network.to_s(16).rjust 2, '0'
-      ripemd160 = hash160 public_key.compressed
+      ripemd160 = hash160 public_key.sec
       with_version = "#{prefix}#{ripemd160}"
       checksum = hash256(with_version)[0, 8]
       wrap_encode = "#{with_version}#{checksum}"
@@ -28,7 +28,7 @@ module Cryptos
     end
 
     def to_hash160
-      hash160(public_key.compressed)
+      hash160(public_key.sec)
     end
 
     def p2pkh

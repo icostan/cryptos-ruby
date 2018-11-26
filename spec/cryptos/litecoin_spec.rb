@@ -2,16 +2,16 @@ require 'spec_helper'
 
 RSpec.describe Cryptos::Litecoin do
   before :all do
-    @cli = Connectors::Cli.new 'litecoin-cli'
+    @cli = Cryptos::Connectors::Cli.new 'litecoin-cli'
     @private_key = Cryptos::PrivateKey.generate
-    @public_key = Cryptos::PublicKey.from_pk @private_key
+    @public_key = Cryptos::PublicKey.new @private_key
     @from_address = Cryptos::Litecoin::Address.new @public_key
     @cli.run "importaddress #{@from_address} src", run_mode: :system
     @cli.run "generatetoaddress 105 #{@from_address}", run_mode: :inline
     @utxos = @cli.run "listunspent 1 9999 \"[\\\"#{@from_address}\\\"]\"", v: false
   end
 
-  let(:to_address) { Cryptos::Litecoin::Address.new Cryptos::PublicKey.from_pk Cryptos::PrivateKey.generate }
+  let(:to_address) { Cryptos::Litecoin::Address.new Cryptos::PublicKey.new Cryptos::PrivateKey.generate }
   before do
     @cli.run "importaddress #{to_address} dst", run_mode: :system
   end

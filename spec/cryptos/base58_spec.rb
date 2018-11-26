@@ -1,7 +1,7 @@
 require 'spec_helper'
 
-RSpec.describe Base58 do
-  include Base58
+RSpec.describe Cryptos::Base58 do
+  include Cryptos::Base58
 
   it 'base58_encode' do
     result = base58_encode '00f54a5851e9372b87810a8e60cdd2e7cfd80b6e31c7f18fe8'

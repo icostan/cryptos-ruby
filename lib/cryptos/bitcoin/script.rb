@@ -1,4 +1,6 @@
-module Bitcoin
-  class Script
+module Cryptos
+  module Bitcoin
+    class Script
+    end
   end
 end

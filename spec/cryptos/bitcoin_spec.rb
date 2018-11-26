@@ -2,13 +2,13 @@
 
 RSpec.describe Cryptos::Bitcoin do
   let(:to_address) {
-    Cryptos::Bitcoin::Address.new Cryptos::PublicKey.from_pk Cryptos::PrivateKey.generate
+    Cryptos::Bitcoin::Address.new Cryptos::PublicKey.new Cryptos::PrivateKey.generate
   }
 
   before :all do
-    @cli = Connectors::Cli.new
+    @cli = Cryptos::Connectors::Cli.new
     @private_key = Cryptos::PrivateKey.generate
-    @public_key = Cryptos::PublicKey.from_pk @private_key
+    @public_key = Cryptos::PublicKey.new @private_key
     @from_address = Cryptos::Bitcoin::Address.new @public_key
     @cli.run "importaddress #{@from_address} src", run_mode: :system
     @cli.run "generatetoaddress 105 #{@from_address}", run_mode: :inline

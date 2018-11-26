@@ -2,7 +2,7 @@ require 'spec_helper'
 
 RSpec.describe Cryptos::Bitcoin::Address do
   let(:k){ Cryptos::PrivateKey.new 0x18e14a7b6a307f426a94f8114701e7c8e774e7f9a47e2c2035db29a206321725 }
-  let(:public_key){ Cryptos::PublicKey.from_pk k }
+  let(:public_key){ Cryptos::PublicKey.new k }
 
   describe 'mainnet' do
     let(:address){ Cryptos::Bitcoin::Address.new public_key, testnet: false }

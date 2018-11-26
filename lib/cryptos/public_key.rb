@@ -2,26 +2,24 @@ module Cryptos
   class PublicKey
     attr_reader :x, :y, :private_key
 
-    def self.from_pk(private_key)
-      new *ec_multiply(private_key.value, EC_Gx, EC_Gy, EC_p), private_key
-    end
-
-    def initialize(x, y, private_key)
-      @x = x
-      @y = y
+    def initialize(private_key)
       @private_key = private_key
+      @x, @y = *ec_multiply(private_key.value, EC_Gx, EC_Gy, EC_p)
     end
 
     def check!
       (x**3 + 7 - y**2) % EC_p == 0 || raise('public key point is not on the curve')
     end
 
-    def compressed
-      "#{y > 0 ? '02' : '03'}#{x.to_s(16)}"
-    end
-
-    def uncompressed
-      "04#{x.to_s(16)}#{y.to_s(16)}"
+    # Serialize public key as SEC (Standards for Efficient Cryptography) format
+    # @param compressed [true, false] the format to return, either compressed or uncompressed
+    # @return address in SEC format
+    def sec(compressed = true)
+      if compressed
+        "#{y.even? ? '02' : '03'}#{x_to_sec}"
+      else
+        "04#{x_to_sec}#{y_to_sec}"
+      end
     end
 
     def coordinates
@@ -30,6 +28,16 @@ module Cryptos
 
     def to_s
       coordinates.to_s
+    end
+
+    private
+
+    def x_to_sec
+      to_hex bignum_to_bytes(x, 32)
+    end
+
+    def y_to_sec
+      to_hex bignum_to_bytes(y, 32)
     end
   end
 end

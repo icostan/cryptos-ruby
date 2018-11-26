@@ -1,10 +1,10 @@
 # Cryptos
 [![Build Status](https://travis-ci.org/icostan/cryptos.svg?branch=master)](https://travis-ci.org/icostan/cryptos)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/50a2b33cfb10cd5293dc/test_coverage)](https://codeclimate.com/github/icostan/cryptos/test_coverage)
+[![Maintainability](https://api.codeclimate.com/v1/badges/d929c152bff4fe5be78f/maintainability)](https://codeclimate.com/github/icostan/cryptos/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/d929c152bff4fe5be78f/test_coverage)](https://codeclimate.com/github/icostan/cryptos/test_coverage)
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/cryptos`. To experiment with that code, run `bin/console` for an interactive prompt.
+Cryptos project is meant to provide an unified Ruby API to work with different crypto-currencies but the ultimate goal is to support atomic-swaps between any two coins.
 
-TODO: Delete this and the text above, and describe your gem
 
 ## Installation
 
@@ -24,7 +24,12 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+```ruby
+private_key = Cryptos::PrivateKey.generate
+public_key = Cryptos::PublicKey.new private_key
+address = Cryptos::Bitcoin::Address.new public_key
+address = Cryptos::Litecoin::Address.new public_key
+```
 
 ## Development
 

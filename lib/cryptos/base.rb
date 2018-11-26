@@ -72,3 +72,7 @@ def bignum_to_bytes(n, length=nil, stringify=true)
   bytes = a.reverse
   stringify ? bytes.pack('C*') : bytes
 end
+
+def to_hex(binary_bytes)
+  binary_bytes.unpack('H*').first
+end
