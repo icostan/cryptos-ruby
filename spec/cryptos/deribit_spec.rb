@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-RSpec.describe Deribit::Client do
+RSpec.describe Cryptos::Deribit::Client do
   it '#get_instruments' do
     instruments = subject.get_instruments
     expect(instruments).to be_kind_of Hashie::Array

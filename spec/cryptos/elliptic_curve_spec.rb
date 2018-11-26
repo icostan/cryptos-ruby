@@ -35,10 +35,10 @@ RSpec.describe 'EllipticCurve' do
       it 'signature hash' do
         private_key = 0x79020296790075fc8e36835e045c513df8b20d3b3b9dbff4d043be84ae488f8d
         px, py = ec_multiply private_key, EC_Gx, EC_Gy, EC_p
-        lock_script = Script.for_public 'n1C8nsmi4sc4hMBGgVZrnhxeFtk1sTbMZ4'
-        input = Input.new 0, 'd30de2a476060e08f4761ad99993ea1f7387bfcb3385f0d604a36a04676cdf93', 1
-        output = Output.new 64000000, 'OP_HASH160 f81498040e79014455a5e8f7bd39bce5428121d3 OP_EQUAL'
-        t = Transaction.new 1, [input], [output], 0
+        lock_script = Cryptos::Script.for_public 'n1C8nsmi4sc4hMBGgVZrnhxeFtk1sTbMZ4'
+        input = Cryptos::Input.new 0, 'd30de2a476060e08f4761ad99993ea1f7387bfcb3385f0d604a36a04676cdf93', 1
+        output = Cryptos::Output.new 64000000, 'OP_HASH160 f81498040e79014455a5e8f7bd39bce5428121d3 OP_EQUAL'
+        t = Cryptos::Transaction.new 1, [input], [output], 0
         hash = t.signature_hash lock_script
         hash_bytes = [hash].pack('H*')
         r, s = ecdsa_sign private_key, hash_bytes

@@ -68,7 +68,7 @@ end
 # ECDSA
 #
 def ecdsa_sign(private_key, digest, temp_key = nil)
-  temp_key ||= PrivateKey.generate.value
+  temp_key ||= Cryptos::PrivateKey.generate.value
   rx, _ry = ec_multiply(temp_key, EC_Gx, EC_Gy, EC_p)
   r = rx % EC_n
   r > 0 || raise('r is zero, try again new temp key')

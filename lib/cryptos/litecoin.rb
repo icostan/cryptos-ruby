@@ -2,5 +2,7 @@ puts 'loading litecoin...'
 
 require_relative 'litecoin/address'
 
-module Litecoin
+module Cryptos
+  module Litecoin
+  end
 end

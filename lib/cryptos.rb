@@ -18,14 +18,12 @@ require 'cryptos/output'
 require 'cryptos/transaction'
 require 'cryptos/der'
 
-# currencies
-require 'cryptos/bitcoin'
-require 'cryptos/litecoin'
+module Cryptos
+  # currencies
+  autoload :Bitcoin, 'cryptos/bitcoin'
+  autoload :Litecoin, 'cryptos/litecoin'
 
-# exchanges
-require 'cryptos/deribit/client'
-require 'cryptos/bitmex/client'
-
-module CryptoCrafts
-  # autoload :Litecoin, 'cryptos/litecoin.rb'
+  # exchanges
+  autoload :Bitmex, 'cryptos/bitmex/client'
+  autoload :Deribit, 'cryptos/deribit/client'
 end

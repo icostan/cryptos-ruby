@@ -4,7 +4,7 @@ require 'cryptos/version'
 
 Gem::Specification.new do |spec|
   spec.name          = 'cryptos'
-  spec.version       = CryptoCrafts::VERSION
+  spec.version       = Cryptos::VERSION
   spec.authors       = ['Iulian Costan']
   spec.email         = ['iulian.costan@gmail.com']
 

@@ -1,15 +1,15 @@
 # require 'tmpdir'
 
-RSpec.describe Bitcoin do
+RSpec.describe Cryptos::Bitcoin do
   let(:to_address) {
-    Bitcoin::Address.new PublicKey.from_pk PrivateKey.generate
+    Cryptos::Bitcoin::Address.new Cryptos::PublicKey.from_pk Cryptos::PrivateKey.generate
   }
 
   before :all do
     @cli = Connectors::Cli.new
-    @private_key = PrivateKey.generate
-    @public_key = PublicKey.from_pk @private_key
-    @from_address = Bitcoin::Address.new @public_key
+    @private_key = Cryptos::PrivateKey.generate
+    @public_key = Cryptos::PublicKey.from_pk @private_key
+    @from_address = Cryptos::Bitcoin::Address.new @public_key
     @cli.run "importaddress #{@from_address} src", run_mode: :system
     @cli.run "generatetoaddress 105 #{@from_address}", run_mode: :inline
     @utxos = @cli.run "listunspent 1 9999 \"[\\\"#{@from_address}\\\"]\"", v: false
@@ -20,11 +20,11 @@ RSpec.describe Bitcoin do
   end
 
   it 'spend coinbase' do
-    input = Input.from_utxo @utxos, 0
-    output = Output.p2pkh to_address, 100_000_000
-    change = Output.p2pkh_change @from_address, input, output
+    input = Cryptos::Input.from_utxo @utxos, 0
+    output = Cryptos::Output.p2pkh to_address, 100_000_000
+    change = Cryptos::Output.p2pkh_change @from_address, input, output
 
-    transaction = Transaction.from_ioc input, output, change
+    transaction = Cryptos::Transaction.from_ioc input, output, change
     rawtx = transaction.sign_input 0, @from_address
 
     @cli.run "sendrawtransaction #{rawtx}", run_mode: :system
@@ -33,12 +33,12 @@ RSpec.describe Bitcoin do
 
   describe 'nLocktime' do
     it 'as number of blocks' do
-      input = Input.from_utxo @utxos, 1, sequence: 0
-      output = Output.p2pkh to_address, 100_000_000
-      change = Output.p2pkh_change @from_address, input, output
+      input = Cryptos::Input.from_utxo @utxos, 1, sequence: 0
+      output = Cryptos::Output.p2pkh to_address, 100_000_000
+      change = Cryptos::Output.p2pkh_change @from_address, input, output
 
       locktime = @cli.run("getblockcount").to_i + 1
-      transaction = Transaction.from_ioc input, output, change, locktime: locktime
+      transaction = Cryptos::Transaction.from_ioc input, output, change, locktime: locktime
       rawtx = transaction.sign_input 0, @from_address
 
       result = @cli.run "testmempoolaccept '[\"#{rawtx}\"]'"
@@ -51,11 +51,11 @@ RSpec.describe Bitcoin do
     end
 
     it 'as unix timestamp' do
-      input = Input.from_utxo @utxos, 2, sequence: 0
-      output = Output.p2pkh to_address, 100_000_000
-      change = Output.p2pkh_change @from_address, input, output
+      input = Cryptos::Input.from_utxo @utxos, 2, sequence: 0
+      output = Cryptos::Output.p2pkh to_address, 100_000_000
+      change = Cryptos::Output.p2pkh_change @from_address, input, output
 
-      transaction = Transaction.from_ioc input, output, change, locktime: Time.now.utc.to_i + 5
+      transaction = Cryptos::Transaction.from_ioc input, output, change, locktime: Time.now.utc.to_i + 5
       rawtx = transaction.sign_input 0, @from_address
 
       @cli.run "sendrawtransaction #{rawtx}", run_mode: :system

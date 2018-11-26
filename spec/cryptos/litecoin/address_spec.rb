@@ -1,11 +1,11 @@
 require 'spec_helper'
 
-RSpec.describe Litecoin::Address do
-  let(:k){ PrivateKey.new 0x18e14a7b6a307f426a94f8114701e7c8e774e7f9a47e2c2035db29a206321725 }
-  let(:public_key){ PublicKey.from_pk k }
+RSpec.describe Cryptos::Litecoin::Address do
+  let(:k){ Cryptos::PrivateKey.new 0x18e14a7b6a307f426a94f8114701e7c8e774e7f9a47e2c2035db29a206321725 }
+  let(:public_key){ Cryptos::PublicKey.from_pk k }
 
   describe 'mainnet' do
-    let(:address){ Litecoin::Address.new public_key, testnet: false }
+    let(:address){ Cryptos::Litecoin::Address.new public_key, testnet: false }
 
     it 'p2pkh' do
       expect(address.p2pkh).to eq 'LhavsnvcPEguCjzzuivpTFvYZ5vPWWHpbx'
@@ -17,7 +17,7 @@ RSpec.describe Litecoin::Address do
   end
 
   describe 'testnet' do
-    let(:address){ Litecoin::Address.new public_key }
+    let(:address){ Cryptos::Litecoin::Address.new public_key }
 
     it 'p2pkh' do
       expect(address.p2pkh).to eq 'n3svudhm7bt6j3nTT9uu1A57Cs9pKK3iXW'
