@@ -5,6 +5,13 @@ cache: bundler
 rvm:
   - 2.5.3
 
+env:
+  global:
+    - CC_TEST_REPORTER_ID=38c8686e073a8123e72d8f7c580edbfae244922662e6202e9a964152b6b234a0
+
+apt_packages:
+  - bitcoind
+
 before_install:
   - gem install bundler -v 1.16.6
   - sudo apt-add-repository ppa:bitcoin/bitcoin -y
@@ -13,13 +20,14 @@ before_install:
   - wget https://download.litecoin.org/litecoin-0.16.3/linux/litecoin-0.16.3-x86_64-linux-gnu.tar.gz
   - tar -xvf litecoin-0.16.3-x86_64-linux-gnu.tar.gz
   - export PATH=./litecoin-0.16.3/bin:$PATH
-  - echo $PATH
-
-apt_packages:
-  - bitcoind
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
 
 before_script:
-  # - mkdir -p /home/travis/.bitcoin && cp bitcoin.conf /home/travis/.bitcoin/bitcoin.conf
   - bitcoind -regtest -daemon
   - litecoind -regtest -daemon
   - sleep 15
+  - ./cc-test-reporter before-build
+
+after_script:
+  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
