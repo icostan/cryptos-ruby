@@ -1,20 +1,21 @@
 module Cryptos
   module Connectors
     class Cli
-      attr_reader :program, :network
+      attr_reader :program, :network, :verbose
 
-      def initialize(program = 'bitcoin-cli', network = 'regtest')
+      def initialize(program: 'bitcoin-cli', network: 'regtest', verbose: false)
         @program = program
         @network = network
+        @verbose = verbose
       end
 
       def run(args, run_mode: :inline, v: false)
         cmd = "#{program} -#{network} #{args}"
-        puts "==> #{cmd}"
+        puts "==> #{cmd}" if v || verbose
         case run_mode
         when :inline
           output = `#{cmd}`
-          puts output if v
+          puts output if v || verbose
           output
         when :system
           success = system cmd

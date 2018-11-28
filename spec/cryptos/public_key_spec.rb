@@ -5,6 +5,6 @@ RSpec.describe Cryptos::PublicKey do
   let(:public_key){ Cryptos::PublicKey.new k }
 
   it 'compressed' do
-    expect(public_key.sec).to eq '0250863ad64a87ae8a2fe83c1af1a8403cb53f53e486d8511dad8a04887e5b2352'
+    expect(public_key.to_sec).to eq '0250863ad64a87ae8a2fe83c1af1a8403cb53f53e486d8511dad8a04887e5b2352'
   end
 end

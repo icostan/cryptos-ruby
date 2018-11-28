@@ -61,7 +61,7 @@ RSpec.describe Cryptos::Bitcoin do
       @cli.run "sendrawtransaction #{rawtx}", run_mode: :system
       generate_and_check @cli, to_address, '0.00000000'
 
-      sleep 5
+      sleep 6
       generate_and_check @cli, to_address, '1.00000000'
     end
   end

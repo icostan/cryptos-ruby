@@ -14,7 +14,7 @@ module Cryptos
     # Serialize public key as SEC (Standards for Efficient Cryptography) format
     # @param compressed [true, false] the format to return, either compressed or uncompressed
     # @return address in SEC format
-    def sec(compressed = true)
+    def to_sec(compressed = true)
       if compressed
         "#{y.even? ? '02' : '03'}#{x_to_sec}"
       else
