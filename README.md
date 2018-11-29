@@ -2,6 +2,7 @@
 [![Build Status](https://travis-ci.org/icostan/cryptos.svg?branch=master)](https://travis-ci.org/icostan/cryptos)
 [![Maintainability](https://api.codeclimate.com/v1/badges/d929c152bff4fe5be78f/maintainability)](https://codeclimate.com/github/icostan/cryptos/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/d929c152bff4fe5be78f/test_coverage)](https://codeclimate.com/github/icostan/cryptos/test_coverage)
+[![Gem Version](https://badge.fury.io/rb/cryptos.svg)](https://badge.fury.io/rb/cryptos)
 
 Cryptos project is meant to provide an unified Ruby API to work with different crypto-currencies but the ultimate goal is to support atomic-swaps between any two coins.
 
