@@ -1,5 +1,7 @@
 module Cryptos
   class PublicKey
+    include Utils::Bytes, Utils::Hexas
+
     attr_reader :x, :y, :private_key
 
     def initialize(private_key)
@@ -33,11 +35,11 @@ module Cryptos
     private
 
     def x_to_sec
-      to_hex bignum_to_bytes(x, 32)
+      bin_to_hex bignum_to_bytes(x, 32)
     end
 
     def y_to_sec
-      to_hex bignum_to_bytes(y, 32)
+      bin_to_hex bignum_to_bytes(y, 32)
     end
   end
 end

@@ -1,4 +1,6 @@
 RSpec.describe 'Base' do
+  include Cryptos::Utils::Bytes
+
   describe 'utils' do
     before do
       @x = 0x09A4D6792295A7F730FC3F2B49CBC0F62E862272F

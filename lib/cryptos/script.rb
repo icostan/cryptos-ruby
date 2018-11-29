@@ -1,6 +1,6 @@
 module Cryptos
   class Script
-    include Hashing
+    include Utils::Hexas, Utils::Hashes
 
     OPCODES = {
       'OP_0' =>  0x00,
@@ -16,29 +16,39 @@ module Cryptos
 
     attr_reader :script
 
-    def self.for_address(address)
-      hash160 = address.to_hash160
-      if address.to_s.start_with? '2'
-        p2sh hash160
-      else
-        p2pkh hash160
-      end
+    # scriptSig for pay-to-pubkey-hash outputs
+    # @param der - signature in der format
+    # @param public_key - the public key
+    # @return script - a Script object holding scriptSig
+    def self.sig_pubkey(der, public_key)
+      new "#{der.serialize} #{public_key.to_sec}"
     end
 
-    def self.for_public(pa)
-      p2pkh Address.to_hash160 pa
+    # scriptSig for pay-to-multisig-hash outputs
+    def self.sig_multisig(der1, der2, redeem_script)
+      new "OP_0 #{der1.serialize} #{der2.serialize} #{redeem_script.serialize}"
     end
 
-    def self.p2pkh(hash160)
-      "OP_DUP OP_HASH160 #{hash160} OP_EQUALVERIFY OP_CHECKSIG"
+    def self.p2pkh(address_or_hex)
+      hash160 = if address_or_hex.is_a? String
+                  Address.to_hash160 address_or_hex
+                else
+                  address_or_hex.to_hash160
+                end
+      new "OP_DUP OP_HASH160 #{hash160} OP_EQUALVERIFY OP_CHECKSIG"
     end
 
-    def self.p2sh(hash160)
-      "OP_HASH160 #{hash160} OP_EQUAL"
+    def self.p2sh(script)
+      new "OP_HASH160 #{script.to_hash160} OP_EQUAL"
     end
 
+    # multisign redeem script
     def self.multisig(address1, address2)
       new "OP_2 #{address1.public_key.to_sec} #{address2.public_key.to_sec} OP_2 OP_CHECKMULTISIG"
+    end
+
+    def self.bare(script)
+      new script
     end
 
     def initialize(script)
@@ -81,10 +91,6 @@ module Cryptos
 
     def data_size(token)
       [token].pack('H*').size
-    end
-
-    def byte_to_hex(value)
-      [value].pack('C').unpack('H*').first
     end
   end
 end

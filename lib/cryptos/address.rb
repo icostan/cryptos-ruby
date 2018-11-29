@@ -1,7 +1,7 @@
 module Cryptos
   class Address
-    include Base58, Hashing
-    extend Base58, Hashing
+    include Base58, Utils::Hashes
+    extend Base58, Utils::Hashes
 
     attr_reader :public_key
     attr_reader :testnet

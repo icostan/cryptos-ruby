@@ -3,9 +3,11 @@ require 'hashie'
 
 require 'cryptos/version'
 
-require 'cryptos/base'
+require 'cryptos/utils/bytes'
+require 'cryptos/utils/hexas'
+require 'cryptos/utils/hashes'
+
 require 'cryptos/base58'
-require 'cryptos/hashing'
 require 'cryptos/elliptic_curve'
 require 'cryptos/connectors/cli'
 

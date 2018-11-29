@@ -32,7 +32,8 @@ RSpec.describe Cryptos::Litecoin do
       before do
         @cli.run "importaddress #{to_address2} dst2", run_mode: :system
       end
-      it 'bare' do
+
+      it 'hash script output' do
         # to multisig
         input = Cryptos::Input.from_utxo @utxos, 1
         output = Cryptos::Output.multisig to_address, to_address2, 1_000_000_000

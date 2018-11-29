@@ -19,6 +19,8 @@ LOW_S = 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0
 #
 # Elliptic Curve
 #
+include Cryptos::Utils::Bytes
+
 def extended_euclidean_algorithm(a, b)
   s, old_s = 0, 1
   t, old_t = 1, 0
