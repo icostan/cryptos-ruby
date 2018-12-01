@@ -7,3 +7,4 @@
   * autoload modules
   * deterministic signature (https://tools.ietf.org/html/rfc6979)
   * refactor elliptic curve module, extract to classes
+  * implement #to_s method for all classes, right now they are too verbose

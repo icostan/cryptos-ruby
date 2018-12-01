@@ -43,6 +43,10 @@ module Cryptos
       serialize
     end
 
+    def sign_single_input(address)
+      sign_input 0, address
+    end
+
     def multi_sign_input(index, address1, address2, sighash_type = 0x01)
       redeem_script = Cryptos::Script.multisig address1, address2
       bytes_string = signature_hash redeem_script, sighash_type
@@ -54,6 +58,10 @@ module Cryptos
       inputs[index].script_sig = Script.sig_multisig der1, der2, redeem_script
 
       serialize
+    end
+
+    def broadcast(cli)
+      cli.send_raw_transaction serialize
     end
 
     def to_s

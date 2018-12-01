@@ -2,8 +2,9 @@ module Cryptos
   Input = Struct.new :value, :tx_hash, :index, :script_sig, :sequence do
     include Utils::Hexas, Utils::Hashes
 
-    def self.from_utxo(data, index = 0, options = {debug: false})
-      utxo = JSON.parse(data)[index]
+    def self.from_utxo(cli, address, index = 0, options = {debug: false})
+      utxos = cli.list_unspent address
+      utxo = JSON.parse(utxos)[index]
       puts utxo if options[:debug]
       txid = utxo['txid']
       vout = utxo['vout']

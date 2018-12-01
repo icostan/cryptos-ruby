@@ -55,6 +55,6 @@ end
 
 def generate_and_check(cli, address, amount)
   cli.run 'generate 1'
-  result = cli.run "getreceivedbyaddress #{address}"
+  result = cli.get_received_by_address address
   expect(result).to include amount
 end

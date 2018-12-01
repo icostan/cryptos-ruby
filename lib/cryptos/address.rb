@@ -39,6 +39,10 @@ module Cryptos
       generate p2sh_prefix
     end
 
+    def import(cli)
+      cli.import_address self
+    end
+
     def to_s
       p2pkh
     end
