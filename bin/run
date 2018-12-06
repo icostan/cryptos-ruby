@@ -1,19 +1,40 @@
 #!/usr/bin/env ruby
 
-private_key = Cryptos::PrivateKey.generate
-public_key = Cryptos::PublicKey.new private_key
-from_address = Cryptos::Bitcoin::Address.new public_key
+require 'bundler/setup'
+require 'cryptos'
+
 cli = Cryptos::Connectors::Cli.new
+
+puts 'Generating private key...'
+private_key = Cryptos::PrivateKey.generate
+
+puts 'Generating public key...'
+public_key = Cryptos::PublicKey.new private_key
+
+puts 'Generating source address...'
+from_address = Cryptos::Bitcoin::Address.new public_key
 from_address.import cli
+
+puts 'Mine 101 blocks...'
 cli.generate_to_address from_address, blocks: 101
+
+puts 'Generating destination address...'
 to_address = Cryptos::Bitcoin::Address.new Cryptos::PublicKey.new Cryptos::PrivateKey.generate
 to_address.import cli
-cli.get_received_by_address to_address
+to_address.get_balance cli
+
+puts 'Create transaction...'
 input = Cryptos::Input.from_utxo cli, from_address
 output = Cryptos::Output.p2pkh to_address, 123_456_789
 change = Cryptos::Output.p2pkh_change from_address, input, output
 transaction = Cryptos::Transaction.from_ioc input, output, change
+
+puts 'Sign and broadcast transaction...'
 transaction.sign_single_input from_address
 transaction.broadcast cli
+
+puts 'Mine next block...'
 cli.generate blocks: 1
-cli.get_received_by_address to_address
+
+puts 'Check destination balance...'
+puts to_address.get_balance cli

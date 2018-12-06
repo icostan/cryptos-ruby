@@ -53,7 +53,7 @@ brew install bitcoin
 apt-get install bitcoin
 
 # start Bitcoin daemon in regtest mode
-bitcoin-cli -regtest -printtoconsole
+bitcoind -regtest -printtoconsole
 ```
 
 Now we create a simple Cli connector that will communicate to underlying bitcoin daemon.

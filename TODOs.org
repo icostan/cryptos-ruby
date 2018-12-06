@@ -8,3 +8,13 @@
   * deterministic signature (https://tools.ietf.org/html/rfc6979)
   * refactor elliptic curve module, extract to classes
   * implement #to_s method for all classes, right now they are too verbose
+  * refactor: add input#sign and mark input as signed
+  * atomic swaps:
+    * happy path - successful redeem both coins
+    * sad path - no redeem, broadcast refund transactions
+    * error paths - redeem with invalid secret, refund before locktime
+    * refactor: simplify swap interfaces
+  * bitcoin:
+    * add address type to constructor
+    * support segwit address
+  * add ZCash support

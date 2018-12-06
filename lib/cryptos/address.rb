@@ -43,6 +43,10 @@ module Cryptos
       cli.import_address self
     end
 
+    def get_balance(cli)
+      cli.get_received_by_address self
+    end
+
     def to_s
       p2pkh
     end
