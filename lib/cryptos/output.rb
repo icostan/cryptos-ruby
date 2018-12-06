@@ -17,6 +17,11 @@ module Cryptos
       Output.p2pkh address, change_value
     end
 
+    def self.atomic_swap(secret_hash, to_address, locktime, from_address, amount)
+      swap_script = Cryptos::Script.swap secret_hash, to_address, locktime, from_address
+      Output.new amount, Cryptos::Script.p2sh(swap_script)
+    end
+
     def serialize
       script_hex = script_pubkey.to_hex
       long_to_hex(value) + byte_to_hex(hex_size(script_hex)) + script_hex

@@ -3,20 +3,29 @@ module Cryptos
     include Utils::Hexas, Utils::Hashes
 
     OPCODES = {
-      'OP_0' =>  0x00,
-      'OP_1' =>  0x51,
-      'OP_2' =>  0x52,
-      'OP_DUP' =>  0x76,
-      'OP_HASH160' =>  0xA9,
+      'OP_0' => 0x00,
+      'OP_PUSHDATA1' => 0x4c,
+      'OP_1' => 0x51,
+      'OP_2' => 0x52,
+      'OP_IF' => 0x63,
+      'OP_ELSE' => 0x67,
+      'OP_ENDIF' => 0x68,
+      'OP_DROP' => 0x75,
+      'OP_DUP' => 0x76,
       'OP_EQUAL' =>  0x87,
-      'OP_EQUALVERIFY' =>  0x88,
-      'OP_CHECKSIG' =>  0xAC,
-      'OP_CHECKMULTISIG' => 0xAE
+      'OP_EQUALVERIFY' => 0x88,
+      'OP_RIPEMD160' => 0xA6,
+      'OP_HASH160' => 0xA9,
+      'OP_CHECKSIG' => 0xAC,
+      'OP_CHECKMULTISIG' => 0xAE,
+      'OP_CHECKLOCKTIMEVERIFY' => 0xB1,
+      'OP_CHECKSEQUENCEVERIFY' => 0xB2,
     }.freeze
 
     attr_reader :script
 
-    # scriptSig for pay-to-pubkey-hash outputs
+    # ScriptSig for pay-to-pubkey-hash outputs
+    #
     # @param der - signature in der format
     # @param public_key - the public key
     # @return script - a Script object holding scriptSig
@@ -26,7 +35,12 @@ module Cryptos
 
     # scriptSig for pay-to-multisig-hash outputs
     def self.sig_multisig(der1, der2, redeem_script)
-      new "OP_0 #{der1.serialize} #{der2.serialize} #{redeem_script.serialize}"
+      new "OP_0 #{der1.serialize} #{der2.serialize} #{redeem_script.to_hex}"
+    end
+
+    # scriptSig for atomic swaps
+    def self.sig_swap(der, public_key, secret, redeem_script)
+      new "#{der.serialize} #{public_key.to_sec} #{secret} OP_1 #{redeem_script.to_hex}"
     end
 
     def self.p2pkh(address_or_hex)
@@ -47,12 +61,25 @@ module Cryptos
       new "OP_2 #{address1.public_key.to_sec} #{address2.public_key.to_sec} OP_2 OP_CHECKMULTISIG"
     end
 
+    def self.swap(secret_hash, to_address, locktime, from_address)
+      new %{
+        OP_IF
+          OP_RIPEMD160 #{secret_hash} OP_EQUALVERIFY
+          OP_DUP OP_HASH160 #{to_address.to_hash160}
+        OP_ELSE
+          #{locktime} OP_CHECKLOCKTIMEVERIFY OP_DROP
+          OP_DUP OP_HASH160 #{from_address.to_hash160}
+        OP_ENDIF
+        OP_EQUALVERIFY OP_CHECKSIG
+      }.delete("\n").squeeze ' '
+    end
+
     def self.bare(script)
       new script
     end
 
     def initialize(script)
-      @script = script
+      @script = script.strip
     end
 
     def to_hash160
@@ -86,7 +113,11 @@ module Cryptos
     def data(token)
       bin_size = data_size token
       # TODO: data size is defined as 1-9 bytes
-      byte_to_hex(bin_size) + token
+      if bin_size > 0x4b
+        opcode('OP_PUSHDATA1') + byte_to_hex(bin_size) + token
+      else
+        byte_to_hex(bin_size) + token
+      end
     end
 
     def data_size(token)

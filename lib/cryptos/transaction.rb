@@ -60,6 +60,18 @@ module Cryptos
       serialize
     end
 
+    def sign_atomic_swap(secret, secret_hash, to_address, locktime, from_address, sighash_type = 0x01)
+      redeem_script = Cryptos::Script.swap secret_hash, to_address, locktime, from_address
+      bytes_string = signature_hash redeem_script, sighash_type
+
+      r, s = ecdsa_sign to_address.public_key.private_key.value, bytes_string
+      der = Cryptos::Der.new r: r, s: s
+      sig_swap = Script.sig_swap der, to_address.public_key, secret, redeem_script
+      inputs[0].script_sig = sig_swap
+
+      serialize
+    end
+
     def broadcast(cli)
       cli.send_raw_transaction serialize
     end

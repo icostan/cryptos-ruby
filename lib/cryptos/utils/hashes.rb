@@ -7,6 +7,10 @@ module Cryptos
         Digest::SHA256.hexdigest([data].pack('H*'))
       end
 
+      def ripemd160(data)
+        Digest::RMD160.hexdigest([data].pack('H*'))
+      end
+
       def hash160(data)
         sha256 = Digest::SHA256.digest([data].pack('H*'))
         Digest::RMD160.hexdigest sha256
