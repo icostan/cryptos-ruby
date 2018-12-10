@@ -1,11 +1,29 @@
-# Cryptos
-[![Build Status](https://travis-ci.org/icostan/cryptos.svg?branch=master)](https://travis-ci.org/icostan/cryptos)
-[![Maintainability](https://api.codeclimate.com/v1/badges/d929c152bff4fe5be78f/maintainability)](https://codeclimate.com/github/icostan/cryptos/maintainability)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/d929c152bff4fe5be78f/test_coverage)](https://codeclimate.com/github/icostan/cryptos/test_coverage)
+# Cryptos-ruby
+
+[![Build Status](https://travis-ci.org/icostan/cryptos-ruby.svg?branch=master)](https://travis-ci.org/icostan/cryptos-ruby)
+[![Maintainability](https://api.codeclimate.com/v1/badges/3e4566b45ebc3f887cef/maintainability)](https://codeclimate.com/github/icostan/cryptos-ruby/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/3e4566b45ebc3f887cef/test_coverage)](https://codeclimate.com/github/icostan/cryptos-ruby/test_coverage)
 [![Gem Version](https://badge.fury.io/rb/cryptos.svg)](https://badge.fury.io/rb/cryptos)
 
-Cryptos project is meant to provide an unified Ruby API to work with different crypto-currencies but the ultimate goal is to support atomic-swaps between any two coins.
+### The Why - the vision and goals
 
+  * I believe there are none of very few Ruby implementations and support for different crypto technologies
+  * I like to craft my own wallets, transactions, block explorers in all shapes and forms
+  * I dream to execute atomic swaps between any crypto coins out there
+
+### The How - the actions
+
+  * Implementing basic cryptography from scratch - elliptic curves math, digital signature schemes, etc
+  * Building a simple and easy to use Ruby API
+  * Lean and continuous improvment along the way (aka adding more coins) while I understand more advanced concepts: pairing cryptography
+
+### The What - the features
+
+  * Generate private and public keys
+  * Generate addresses for Bitcoin, Litecoin, Ethereum and much more
+  * Create transaction to spend standard inputs or more complex multisig, hashed timelock contracts
+  * Execute atomic swaps between Bitcoin and Litecoin, more to come
+  * TODO: Create, import, export wallets
 
 ## Installation
 
@@ -36,7 +54,7 @@ Alright, let's begin, first thing first, lets generate private and public keys:
  => #<Cryptos::PublicKey:0x00007f8cc105ed58 @private_key=#<Cryptos::PrivateKey:0x00007f8cc10c0ad0 @value=1991485315816438798044329630916774278846523543844864946402119577704095054145, @order=115792089237316195423570985008687907852837564279074904382605163141518161494337>, @x=107779388491921327681974754398507503201871466663959093103394577491037829153768, @y=78060352001932916201234328232450653863791592111885208305671830584742527863131>
 ```
 
-Based in publik key above lets create a Bitcoin address:
+Based on public key above lets create a Bitcoin address:
 
 ```ruby
 2.5.3 :003 > from_address = Cryptos::Bitcoin::Address.new public_key
@@ -79,7 +97,7 @@ Generate and import destination address to send BTC to then check that it has no
  => #<Cryptos::Bitcoin::Address:0x00007f8cc134f2b0 @public_key=#<Cryptos::PublicKey:0x00007f8cc128fa78 @private_key=#<Cryptos::PrivateKey:0x00007f8cc128faa0 @value=104555233989943463494354097619221894829574308702717051161491781222000198727347, @order=115792089237316195423570985008687907852837564279074904382605163141518161494337>, @x=1402024405898287938501468401055931693243587868828983898835308320263377717122, @y=89146164815925753866667564550747587615674131412309491381641677989226156891240>, @testnet=true>
 2.5.3 :008 > to_address.import cli
  => true
-2.5.3 :009 > cli.get_received_by_address to_address
+2.5.3 :009 > to_address.get_balance cli
  => "0.00000000"
 ```
 
