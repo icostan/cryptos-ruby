@@ -17,8 +17,8 @@ Gem::Specification.new do |spec|
   if spec.respond_to?(:metadata)
     spec.metadata['allowed_push_host'] = 'https://rubygems.org'
 
-    upec.metadata['homepage_uri'] = spec.homepage
-    upec.metadata['source_code_uri'] = 'https://github.com/icostan/cryptos-ruby.git'
+    spec.metadata['homepage_uri'] = spec.homepage
+    spec.metadata['source_code_uri'] = 'https://github.com/icostan/cryptos-ruby.git'
     spec.metadata['changelog_uri'] = 'https://github.com/icostan/cryptos-ruby/blob/master/CHANGELOG'
   else
     raise 'RubyGems 2.0 or newer is required to protect against ' \
