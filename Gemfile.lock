@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    cryptos (0.0.2)
+    cryptos (0.0.3)
       hashie
       httparty
 
