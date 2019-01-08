@@ -1,20 +1,33 @@
-* TODOs
-  * Integration tests with -regtest mode
-  * Support for LTC
-  * Atomic swap BTCLTC
-  * brew decred
-  * brew litecoin, move cask
-  * autoload modules
-  * deterministic signature (https://tools.ietf.org/html/rfc6979)
-  * refactor elliptic curve module, extract to classes
-  * implement #to_s method for all classes, right now they are too verbose
-  * refactor: add input#sign and mark input as signed
-  * atomic swaps:
-    * happy path - successful redeem both coins
-    * sad path - no redeem, broadcast refund transactions
-    * error paths - redeem with invalid secret, refund before locktime
-    * refactor: simplify swap interfaces
-  * bitcoin:
-    * add address type to constructor
-    * support segwit address
-  * add ZCash support
+* Tasks                                                             :CRYPTOS:
+** DONE Integration tests with -regtest mode
+** DONE Support for LTC
+** TODO Refactoring [0%]
+*** TODO refactor input#sign and mark input as signed
+*** TODO refactor elliptic curve module, extract to classes
+*** TODO implement #to_s method for all classes, right now they are too verbose
+*** autoload modules
+*** refactor: simplify swap interfaces
+** brews [0/3]
+*** TODO brew decred
+*** TODO brew litecoin: move cask
+*** TODO brew monero: add service file
+** atomic swaps:
+*** BTCLTC
+*** happy path - successful redeem both coins
+*** sad path - no redeem, broadcast refund transactions
+*** error paths - redeem with invalid secret, refund before locktime
+** TODO Bitcoin implementation [0/2]                                :BITCOIN:
+*** TODO add address type to constructor
+*** TODO support segwit address
+    SCHEDULED: <2019-01-14 Mon>
+*** deterministic signature (https://tools.ietf.org/html/rfc6979)
+** ZCash implementation
+** TODO Monero implementation [25%]                                  :MONERO:
+*** DONE local node and sync blockchain
+    CLOSED: [2019-01-08 Tue] SCHEDULED: <2019-01-07 Mon>
+*** TODO create plist services file
+*** TODO generate address types
+*** TODO craft transaction
+** Litecoin implementation                                         :LITECOIN:
+*** TODO support segwit address
+    SCHEDULED: <2019-01-14 Mon>
