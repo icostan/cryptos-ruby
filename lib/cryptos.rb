@@ -1,5 +1,4 @@
 require 'httparty'
-require 'hashie'
 
 require 'cryptos/version'
 
@@ -24,8 +23,4 @@ module Cryptos
   # currencies
   autoload :Bitcoin, 'cryptos/bitcoin'
   autoload :Litecoin, 'cryptos/litecoin'
-
-  # exchanges
-  autoload :Bitmex, 'cryptos/bitmex/client'
-  autoload :Deribit, 'cryptos/deribit/client'
 end
