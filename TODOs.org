@@ -6,11 +6,13 @@
 *** TODO refactor elliptic curve module, extract to classes
 *** TODO implement #to_s method for all classes, right now they are too verbose
 *** autoload modules
-*** refactor: simplify swap interfaces
-** brews [0/3]
-*** TODO brew decred
-*** TODO brew litecoin: move cask
-*** TODO brew monero: add service file
+*** simplify swap interfaces
+*** move network type at module level
+** brews [1/1]
+*** brew decred
+*** brew litecoin: move cask
+*** DONE brew monero: add service file
+    CLOSED: [2019-01-14 Mon] SCHEDULED: <2019-01-14 Mon>
 ** atomic swaps:
 *** BTCLTC
 *** happy path - successful redeem both coins
@@ -19,15 +21,14 @@
 ** TODO Bitcoin implementation [0/2]                                :BITCOIN:
 *** TODO add address type to constructor
 *** TODO support segwit address
-    SCHEDULED: <2019-01-14 Mon>
 *** deterministic signature (https://tools.ietf.org/html/rfc6979)
 ** ZCash implementation
-** TODO Monero implementation [25%]                                  :MONERO:
+** TODO Monero implementation [66%]                                  :MONERO:
 *** DONE local node and sync blockchain
     CLOSED: [2019-01-08 Tue] SCHEDULED: <2019-01-07 Mon>
-*** TODO create plist services file
 *** TODO generate address types
-*** TODO craft transaction
+*** generate view / spend keys
+*** craft transaction
+*** DONE wallet import/export from mnemonic
+    CLOSED: [2019-02-06 Wed] SCHEDULED: <2019-02-04 Mon>
 ** Litecoin implementation                                         :LITECOIN:
-*** TODO support segwit address
-    SCHEDULED: <2019-01-14 Mon>

@@ -20,7 +20,7 @@ require 'cryptos/transaction'
 require 'cryptos/der'
 
 module Cryptos
-  # currencies
   autoload :Bitcoin, 'cryptos/bitcoin'
   autoload :Litecoin, 'cryptos/litecoin'
+  autoload :Monero, 'cryptos/monero'
 end
