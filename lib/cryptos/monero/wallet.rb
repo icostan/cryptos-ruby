@@ -218,20 +218,6 @@ module Cryptos
         @seed = seed
       end
 
-      # Mnemonic words
-      # 4 bytes -> 3 words.  8 digits base 16 -> 3 digits base 1626
-      # @return [Array] mnemonic words
-      def to_mnemonic
-        words = [@seed].pack('H*').unpack('V*').map do |n|
-          i1 = (n / base**0 + 0) % base
-          i2 = (n / base**1 + i1) % base
-          i3 = (n / base**2 + i2) % base
-          [WORDS[i1], WORDS[i2], WORDS[i3]]
-        end.flatten
-        words << self.class.checksum_word(words)
-        words.join ' '
-      end
-
       # Create a wallet instance from mnemomnic words
       # @param mnemonic the mnemonic words
       # @return [Cryptos::Monero::Wallet] the wallet instance
@@ -255,6 +241,27 @@ module Cryptos
           [x].pack('V').unpack 'H*'
         end
         new seeds.flatten.join
+      end
+
+      # Mnemonic words
+      # 4 bytes -> 3 words.  8 digits base 16 -> 3 digits base 1626
+      # @return [Array] mnemonic words
+      def to_mnemonic
+        words = [@seed].pack('H*').unpack('V*').map do |n|
+          i1 = (n / base**0 + 0) % base
+          i2 = (n / base**1 + i1) % base
+          i3 = (n / base**2 + i2) % base
+          [WORDS[i1], WORDS[i2], WORDS[i3]]
+        end.flatten
+        words << self.class.checksum_word(words)
+        words.join ' '
+      end
+
+      # Create private spend key
+      # @return [Cryptos::Monero::PrivateSpendKey] the private spend key instance
+      def private_spend_key
+        key = bytes_to_bignum [seed].pack('H*').reverse
+        Cryptos::Monero::PrivateSpendKey.new key
       end
 
       def base

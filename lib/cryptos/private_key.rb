@@ -2,7 +2,7 @@ require 'securerandom'
 
 module Cryptos
   class PrivateKey
-    attr_reader :value, :order
+    attr_reader :value, :order, :little
 
     # Generates new private key
     # @param group [EllipticCurve::Group] EC group this
@@ -12,13 +12,21 @@ module Cryptos
       new value, group.order
     end
 
-    def initialize(value, order = nil)
+    def initialize(value, order = nil, little = false)
       @value = value
       @order = order
+      @little = little
     end
 
     def to_s
       value.to_s
+    end
+
+    # Hex representation
+    # @return key as hex
+    def to_hex
+      bytes = bignum_to_bytes(value, nil, true, little)
+      bytes.unpack('H*').first
     end
   end
 end
