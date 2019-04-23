@@ -9,21 +9,19 @@
 
   * I believe there are none of very few Ruby implementations and support for different crypto technologies
   * I like to craft my own wallets, transactions, block explorers in all shapes and forms
-  * I dream to execute atomic swaps between any crypto coins out there
+  * I dream to execute atomic swaps in 3 lines of Ruby code
 
 ### The How - the actions
 
   * Implementing basic cryptography from scratch - elliptic curves math, digital signature schemes, etc
   * Building a simple and easy to use Ruby API
-  * Lean and continuous improvment along the way (aka adding more coins) while I understand more advanced concepts: pairing cryptography
+  * Lean and continuous improvement along the way while I understand more advanced cryptography: pairing, lattices
 
 ### The What - the features
 
   * Generate private and public keys
   * Generate addresses for Bitcoin, Litecoin, Ethereum and much more
-  * Create transaction to spend standard inputs or more complex multisig, hashed timelock contracts
-  * Execute atomic swaps between Bitcoin and Litecoin, more to come
-  * TODO: Create, import, export wallets
+  * Create transaction to spend standard inputs or more complex multisig, hashed timelock contracts, swaps
 
 ## Installation
 
@@ -43,23 +41,27 @@ Or install it yourself as:
 
 ## Usage
 
-### Scenario 1: Spend coinbase transaction
+### Bitcoin and friends
+
+#### Generate keys and address
 
 Alright, let's begin, first thing first, lets generate private and public keys:
 
 ```ruby
-2.5.3 :001 > private_key = Cryptos::PrivateKey.generate
+2.5.3 > private_key = Cryptos::PrivateKey.generate
  => #<Cryptos::PrivateKey:0x00007f8cc10c0ad0 @value=1991485315816438798044329630916774278846523543844864946402119577704095054145, @order=115792089237316195423570985008687907852837564279074904382605163141518161494337>
-2.5.3 :002 > public_key = Cryptos::PublicKey.new private_key
+2.5.3 > public_key = Cryptos::PublicKey.new private_key
  => #<Cryptos::PublicKey:0x00007f8cc105ed58 @private_key=#<Cryptos::PrivateKey:0x00007f8cc10c0ad0 @value=1991485315816438798044329630916774278846523543844864946402119577704095054145, @order=115792089237316195423570985008687907852837564279074904382605163141518161494337>, @x=107779388491921327681974754398507503201871466663959093103394577491037829153768, @y=78060352001932916201234328232450653863791592111885208305671830584742527863131>
 ```
 
 Based on public key above lets create a Bitcoin address:
 
 ```ruby
-2.5.3 :003 > from_address = Cryptos::Bitcoin::Address.new public_key
+2.5.3 > from_address = Cryptos::Bitcoin::Address.new public_key
  => #<Cryptos::Bitcoin::Address:0x00007f8cc12fc560 @public_key=#<Cryptos::PublicKey:0x00007f8cc105ed58 @private_key=#<Cryptos::PrivateKey:0x00007f8cc10c0ad0 @value=1991485315816438798044329630916774278846523543844864946402119577704095054145, @order=115792089237316195423570985008687907852837564279074904382605163141518161494337>, @x=107779388491921327681974754398507503201871466663959093103394577491037829153768, @y=78060352001932916201234328232450653863791592111885208305671830584742527863131>, @testnet=true>
 ```
+
+#### Scenario 1: Spend coinbase transaction
 
 Before going any further we need to install bitcoin-core daemon and start node in regtest mode:
 
@@ -132,13 +134,26 @@ Mine new block that will contain our hand crafted transaction and VOILA! output 
  => "1.23456789"
 ```
 
-### Scenario 2: Spend multisig transaction
+#### Scenario 2: Spend multisig transaction
 
-TBD
+[multisig transaction](spec/cryptos/litecoin_spec.rb)
 
-### Scenario 3: Atomic swaps between BTC and LTC
+#### Scenario 3: Atomic swaps between BTC and LTC
 
-TBD
+[atomic swap](spec/cryptos/swaps_spec.rb)
+
+### Monero
+
+#### Generate keys and address:
+
+```ruby
+2.5.3 :015 > seed = "vinegar talent sorry hybrid ultimate template nimbly jukebox axes inactive veered toenail pride plotting chrome victim agnostic science bailed paddles wounded peaches king laptop king"
+ => "vinegar talent sorry hybrid ultimate template nimbly jukebox axes inactive veered toenail pride plotting chrome victim agnostic science bailed paddles wounded peaches king laptop king"
+2.5.3 :016 > wallet = Cryptos::Monero::Wallet.from_mnemonic seed
+ => #<Cryptos::Monero::Wallet:0x00007faa600bfad8 @seed="6ee02ef8647856f4080882a1ec4fabee19ec047ca24d3abb13c0ce589a46f702">
+2.5.3 :017 > private_spend_key = wallet.private_spend_key
+ => #<Cryptos::Monero::PrivateSpendKey:0x00007faa600aac50 @value=1341524205595389594312687854960107116555340486708078533906470082005332582510, @order=7237005577332262213973186563042994240857116359379907606001950938285454250989, @little=true>
+```
 
 ## Development
 
